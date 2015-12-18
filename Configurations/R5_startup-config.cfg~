@@ -1,9 +1,4 @@
 !
-!
-!
-!
-!
-!
 
 !
 version 12.4
@@ -39,8 +34,8 @@ ip dhcp pool loc3
    default-router 192.168.103.1 
 !
 !
-!
 mpls traffic-eng tunnels
+!
 !
 !
 !
@@ -57,8 +52,19 @@ mpls traffic-eng tunnels
 ip tcp synwait-time 5
 !
 !
+!
 interface Loopback0
  ip address 5.5.5.5 255.255.255.255
+!
+interface Tunnel1
+ ip unnumbered Loopback0
+ tunnel destination 1.1.1.1
+ tunnel mode mpls traffic-eng
+ tunnel mpls traffic-eng autoroute announce
+ tunnel mpls traffic-eng priority 2 2
+ tunnel mpls traffic-eng bandwidth  400
+ tunnel mpls traffic-eng path-option 1 explicit name throughR2
+ no routing dynamic
 !
 interface FastEthernet0/0
  ip address 10.5.5.2 255.255.255.252
@@ -95,8 +101,10 @@ interface Ethernet2/3
 !
 !
 router ospf 1
- router-id 10.5.5.5
+ mpls traffic-eng router-id Loopback0
+ mpls traffic-eng area 0
  log-adjacency-changes
+ network 5.5.5.5 0.0.0.0 area 0
  network 10.4.4.0 0.0.0.3 area 0
  network 10.5.5.0 0.0.0.3 area 0
  network 192.168.101.0 0.0.0.255 area 0
@@ -107,6 +115,10 @@ no ip http server
 ip forward-protocol nd
 !
 !
+!
+ip explicit-path name thoughR2 enable
+ next-address 10.5.5.1 
+ next-address 10.1.1.1 
 !
 no cdp log mismatch duplex
 !
