@@ -1,0 +1,20 @@
+Dec 15 10:22:14.739 HYPERVISOR: Release 0.2.14-x86/Linux (tag 2014092320)
+Dec 15 10:22:14.740 HYPERVISOR: Started on IP = 127.0.0.1, TCP port = 56080.
+Dec 15 10:22:14.747 HYPERVISOR: exec_cmd: hypervisor version 
+Dec 15 10:22:14.748 HYPERVISOR: exec_cmd: hypervisor uuid 
+Dec 15 10:22:14.748 HYPERVISOR: exec_cmd: hypervisor working_dir /home/user/Desktop/Basic_Topology/project-files/dynamips 
+Dec 15 10:22:14.748 GENERAL: working_dir=/home/user/Desktop/Basic_Topology/project-files/dynamips
+Dec 15 10:22:14.748 HYPERVISOR: exec_cmd: ethsw create SW1 
+Dec 15 10:22:15.321 HYPERVISOR: exec_cmd: nio create_udp udp-c45fc182-194d-4e09-82ae-ec5cca1a0b7a 10001 127.0.0.1 10000 
+Dec 15 10:22:15.328 HYPERVISOR: exec_cmd: ethsw add_nio SW1 udp-c45fc182-194d-4e09-82ae-ec5cca1a0b7a 
+Dec 15 10:22:15.348 HYPERVISOR: exec_cmd: ethsw set_access_port SW1 udp-c45fc182-194d-4e09-82ae-ec5cca1a0b7a 1 
+Dec 15 10:22:15.355 HYPERVISOR: exec_cmd: nio create_udp udp-43fa7446-172c-4476-8f15-7c80e89bfca6 10003 127.0.0.1 10002 
+Dec 15 10:22:15.363 HYPERVISOR: exec_cmd: ethsw add_nio SW1 udp-43fa7446-172c-4476-8f15-7c80e89bfca6 
+Dec 15 10:22:15.385 HYPERVISOR: exec_cmd: ethsw set_access_port SW1 udp-43fa7446-172c-4476-8f15-7c80e89bfca6 1 
+Dec 15 10:22:15.845 HYPERVISOR: exec_cmd: nio create_udp udp-9402370b-8eca-49c6-895d-e084cef161e1 10017 127.0.0.1 10016 
+Dec 15 10:22:15.846 HYPERVISOR: exec_cmd: ethsw add_nio SW1 udp-9402370b-8eca-49c6-895d-e084cef161e1 
+Dec 15 10:22:15.870 HYPERVISOR: exec_cmd: ethsw set_access_port SW1 udp-9402370b-8eca-49c6-895d-e084cef161e1 1 
+Dec 15 10:22:21.838 HYPERVISOR: exec_cmd: ethsw delete SW1 
+Dec 15 10:22:21.894 HYPERVISOR: exec_cmd: hypervisor stop 
+Dec 15 10:22:22.267 HYPERVISOR: Stopped.
+Dec 15 10:22:22.267 GENERAL: reset done.
