@@ -6,17 +6,6 @@ import time
 import socket, struct
 from if_res import if_res
 
-##Actually doesn't give the gateway address. To fix
-def get_default_gateway_linux():
-	with open("/proc/net/route") as fh:
-		for line in fh:
-			fields = line.strip().split()
-			if fields[1] != '00000000' or not int (fields[3], 16) & 2:
-				continue
-
-	return socket.inet_ntoa(struct.pack("<L", int(fields[2],16)))
-
-
 ##This fuction returns for each interface its speed expressed in bit per second
 def get_ifs_info(number_if):
 	id_ifs=[];
@@ -93,10 +82,11 @@ def get_utilization(if_list):
 	old_ifOutBytes=0;
 	old_TimeUp=0;
 	how_much_often=1;
-
+	n_rel=0;
 	while True:
+		n_rel=n_rel+1;
 		time.sleep(how_much_often);
-		print '\n\n'
+		print '\n'
 		for x in ifs_list:
 			if_id=int(x.get_id())
 			if_name=x.get_name()
@@ -120,30 +110,39 @@ def get_utilization(if_list):
 				print('%s at %s' % (
 					errorStatus.prettyPrint(),
 					errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
-			
-	
-	
-			ifInBytes=int(varBinds[0].prettyPrint().split("= ",1)[1]);
-			ifOutBytes=int(varBinds[1].prettyPrint().split("= ",1)[1]);
-			#timeUp=int(varBinds[2].prettyPrint().split("= ",1)[1]);
+			if(n_rel>1):
+				ifInBytes=int(varBinds[0].prettyPrint().split("= ",1)[1]);
+				ifOutBytes=int(varBinds[1].prettyPrint().split("= ",1)[1]);
+				timeUp=int(varBinds[2].prettyPrint().split("= ",1)[1]);
 
-			delta_ifInBytes=float(ifInBytes)- x.get_old_in_byte()
-			delta_ifOutBytes=float(ifOutBytes)-x.get_old_out_byte()
+				delta_ifInBytes=int(ifInBytes)- x.get_old_in_byte()
+				delta_ifOutBytes=int(ifOutBytes)-x.get_old_out_byte()
+				delta_timeUp=int(timeUp)-x.get_old_timeUp()
+
+				print 'IN OUT bytes and TIME (NEW)', ifInBytes, ifOutBytes, timeUp
+				print 'IN OUT bytes and TIME (OLD)', x.get_old_in_byte(), x.get_old_out_byte(), x.get_old_timeUp()
+				print 'delta values: ', delta_ifInBytes, delta_ifOutBytes, delta_timeUp
+		
+				x.set_old_in_byte(ifInBytes)
+				x.set_old_out_byte(ifOutBytes)
+				x.set_old_timeUp(timeUp)
+				
+				##The utilization takes into account also the 	packets get from SNMP
+				in_utilization=((delta_ifInBytes)*8*100)/(if_speed*(delta_timeUp/100));
+				out_utilization=((delta_ifOutBytes)*8*100)/(if_speed*(delta_timeUp/100));
+				format(in_utilization,'.3f')
+				format(out_utilization,'.3f')
+				
+				##Some times the shown utilization is bigger than one. This it could be due to buffer o burst packets incoming. In order to avoid this kind of situation, it will be one if it is greater than one. It is correct this line of thinking ?
+
+				#if (in_utilization>100): in_utilization=100
+				#if (out_utilization>100): out_utilization=100
+				
+
+				print '(#', n_rel, ')', ' The  in utilization ', if_name,'interface (ID:', if_id,') is ', in_utilization, '% (if speed: ',if_speed,' )';
+				print '(#', n_rel, ')', ' The  out utilization ', if_name,'interface (ID:', if_id,') is ', out_utilization, '% (if speed: ',if_speed,' )\n';
 	
-			x.set_old_in_byte(ifInBytes)
-			x.set_old_out_byte(ifOutBytes)
 			
-			#print 'In and out bytes ', ifInBytes, ifOutBytes
-			#print 'In and out bytes (OLD)', old_ifInBytes, old_ifOutBytes
-			#print 'delta values: ', delta_ifInBytes, delta_ifOutBytes
-	
-			old_ifInBytes=ifInBytes;
-			old_ifOutBytes=ifOutBytes;
-	
-			#old_TimeUp=timeUp;
-	
-			utilization=(delta_ifInBytes+delta_ifOutBytes)*8*100/(if_speed*how_much_often);##The utilization takes into account also the 	packets get from SNMP
-			print 'The utilization ',if_name,' interface (ID:', if_id,') is ', utilization, '% (if speed: ',if_speed,' )';
 
 #######MAIN
 ##First to get the if_number is needed to get the next hop address is some way. I'm assuming that the next hop address is 192.168.3.1
