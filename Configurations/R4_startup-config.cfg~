@@ -4,6 +4,13 @@
 !
 !
 !
+!
+!
+!
+!
+!
+!
+!
 
 !
 version 12.4
@@ -68,6 +75,7 @@ router ospf 1
  mpls traffic-eng router-id Loopback0
  mpls traffic-eng area 0
  log-adjacency-changes
+ network 4.4.4.4 0.0.0.0 area 0
  network 10.3.3.0 0.0.0.3 area 0
  network 10.4.4.0 0.0.0.3 area 0
 !

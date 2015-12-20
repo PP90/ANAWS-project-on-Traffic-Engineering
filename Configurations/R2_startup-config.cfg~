@@ -4,6 +4,13 @@
 !
 !
 !
+!
+!
+!
+!
+!
+!
+!
 
 !
 version 12.4
@@ -64,10 +71,12 @@ interface FastEthernet1/0
 !
 !
 router ospf 1
- router-id 10.2.2.2
+ mpls traffic-eng router-id Loopback0
+ mpls traffic-eng area 0
  log-adjacency-changes
  network 10.1.1.0 0.0.0.3 area 0
  network 10.5.5.0 0.0.0.3 area 0
+ network 2.2.2.2 0.0.0.0 area 0
 !
 no ip http server
 ip forward-protocol nd

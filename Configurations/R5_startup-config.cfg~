@@ -1,4 +1,9 @@
 !
+!
+!
+!
+!
+!
 
 !
 version 12.4
@@ -116,7 +121,7 @@ ip forward-protocol nd
 !
 !
 !
-ip explicit-path name thoughR2 enable
+ip explicit-path name throughR2 enable
  next-address 10.5.5.1 
  next-address 10.1.1.1 
 !
