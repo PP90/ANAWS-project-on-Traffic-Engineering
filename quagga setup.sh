@@ -11,11 +11,16 @@ touch /etc/quagga/zebra.conf
 touch /etc/quagga/ospfd.conf
 
 echo "Populate configuration files"
+#zebra.conf
 echo "hostname Router" >> /etc/quagga/zebra.conf
 echo "password zebra" >> /etc/quagga/zebra.conf
 echo "enable password zebra" >> /etc/quagga/zebra.conf
+#ospfd.conf
 echo "hostname ospfd" >> /etc/quagga/ospfd.conf
 echo "password zebra" >> /etc/quagga/ospfd.conf
+echo "router ospf" >> /etc/quagga/ospfd.conf
+#THIS NEXT LINE NEED TO BE CHANGED ACCORDINGLY
+echo $'\t'"network 192.168.3.2/24 area 0"  >> /etc/quagga/ospfd.conf
 
 echo "Set owner"
 chown quagga:quagga /etc/quagga/zebra.conf
