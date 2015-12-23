@@ -45,13 +45,13 @@ def get_ifs_info(number_if):
 			id_ifs.append(x)
 			
 		except ValueError:
-			print 'No interface with ID = ',i;
+			print 'No interface with ID ',i;
 		i=i+1;
 	return id_ifs
 
 
 
-##This function returns the number of interfaces indipendendly if thet are up or down
+##This function returns the number of interfaces indipendendly if they are up or down
 def get_if_number():
 	errorIndication, errorStatus, errorIndex, varBinds = next(
 	    getCmd(SnmpEngine(),
@@ -75,7 +75,7 @@ def get_if_number():
 	print '#interfaces: ', if_number;
 	return if_number
 
-##Given a if_resource instance this functions gets its utilization
+##Given a if_resource instance this functions gets its in and out utilization
 def get_utilization(if_list):
 	
 	old_ifInBytes=0;
@@ -119,9 +119,10 @@ def get_utilization(if_list):
 				delta_ifOutBytes=int(ifOutBytes)-x.get_old_out_byte()
 				delta_timeUp=int(timeUp)-x.get_old_timeUp()
 
-				print 'IN OUT bytes and TIME (NEW)', ifInBytes, ifOutBytes, timeUp
-				print 'IN OUT bytes and TIME (OLD)', x.get_old_in_byte(), x.get_old_out_byte(), x.get_old_timeUp()
-				print 'delta values: ', delta_ifInBytes, delta_ifOutBytes, delta_timeUp
+				##Debug prints
+				#print 'IN OUT bytes and TIME (NEW)', ifInBytes, ifOutBytes, timeUp
+				#print 'IN OUT bytes and TIME (OLD)', x.get_old_in_byte(), x.get_old_out_byte(), x.get_old_timeUp()
+				#print 'delta values: ', delta_ifInBytes, delta_ifOutBytes, delta_timeUp
 		
 				x.set_old_in_byte(ifInBytes)
 				x.set_old_out_byte(ifOutBytes)
@@ -150,6 +151,7 @@ ifs_number=int(get_if_number())
 ifs_list=get_ifs_info(ifs_number);
 how_much_often=1
 get_utilization(ifs_list)
+
 ##Print all interfaces info
 '''
 for x in ifs_list:

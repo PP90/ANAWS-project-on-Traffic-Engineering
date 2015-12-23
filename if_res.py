@@ -1,22 +1,29 @@
+##Class if_res.
+##This class contains info about the interface. if_res meaning is interface resource.
+##
 class if_res:
-	id_if=-1
-	name=""
-	speed=-1
-	old_ifInBytes=0
+	id_if=-1##Id interface
+	name=""##Name of interface
+	speed=-1##speed of interface
+
+	old_ifInBytes=0 ##old values of in and output bytes
 	old_ifOutBytes=0
-	old_timeUp=0;
-	ifInBytes=0
+
+	old_timeUp=0;##old values of in and output bytes
+
+	ifInBytes=0 ####new values of in and output bytes
 	ifOutBytes=0
 	
 	def __init__(self):
 		print 'Empty constructor to fill'
 
-
+	
 	def __init__(self, id_if, name, speed):
 		self.id_if=id_if
 		self.name=name
 		self.speed=speed
 
+	#to print function
 	def display_info(self):
 		print 'ID interface: ', self.id_if
 		print 'name interface: ', self.name
