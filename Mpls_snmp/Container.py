@@ -17,8 +17,8 @@ class Container(object):
 			return self._info[info]
 	
 	def __str__(self):
-		returnString = "Tunnel Name: " + self._name + ' '
+		returnString = "Name: " + self._name + '\n'
 		for elem in self._info.keys():
-			returnString += elem + ": " + str(self._info[elem]) + ' '
+			returnString += '\t' + elem + ": " + str(self._info[elem]) + '\n'
 		return returnString
 	
