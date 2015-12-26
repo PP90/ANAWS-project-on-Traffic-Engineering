@@ -1,10 +1,10 @@
 from pysnmp.hlapi import *
 
-def snmpwalk(oid):
+def snmpwalk(oid, address, community):
 	bulk = bulkCmd(
 		SnmpEngine(),
-                CommunityData('public'),
-                UdpTransportTarget(('192.168.3.1', 161)),
+                CommunityData(community),
+                UdpTransportTarget((address, 161)),
                 ContextData(),
                 1, 25,
                 ObjectType(ObjectIdentity(oid)),
@@ -30,11 +30,11 @@ def next_record(cmd_instance):
 		return varBinds
 		
 		
-def snmpget(oid):
+def snmpget(oid, address, community):
 	errorIndication, errorStatus, errorIndex, varBinds = next(
     		getCmd(SnmpEngine(),
-		   CommunityData('public'),
-		   UdpTransportTarget(('192.168.3.1', 161)),
+		   CommunityData(community),
+		   UdpTransportTarget((address, 161)),
 		   ContextData(),
 		   ObjectType(ObjectIdentity(oid)))
 	)
