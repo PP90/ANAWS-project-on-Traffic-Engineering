@@ -1,7 +1,12 @@
 from TeTunnels import *
 
 
-t = TeTunnels("10.1.1.2", "public")
+#R2
+#t = TeTunnels("10.1.1.2", "public")
+#R1
+#t = TeTunnels("192.168.3.1", "public")
+#R5
+t = TeTunnels("10.5.5.2", "public")
 
 t.start()
 

@@ -178,6 +178,15 @@ class TeTunnels(object):
 			path = self._getConfiguredPath(primaryIndex, secondaryIndex, "mplsTunnelHopTable")
 			tunnelName = self._NameIdMap[index]
 			self._ConfiguredTunnels[tunnelName].addInfo("Path", path)
+			#Get also the number of bytes that traversed the tunnel
+			oid = string_to_OID("mplsTunnelPerfHCBytes")
+			oid += '.' + index
+			walk = snmpwalk(oid, self._rAddress, self._cString)
+			countBytes = self._getValueFromResponse(walk)
+			if primaryIndex == None:
+				print "Error in getting the mplsTunnelPerfHCBytes"
+				return
+			self._ConfiguredTunnels[tunnelName].addInfo("In/Out bytes", countBytes)
 	
 	def _getComputedPaths(self, index):
 		#Get the primary index from OID: mplsTunnelCHopTableIndex
@@ -217,7 +226,7 @@ class TeTunnels(object):
 			self._LspTable[tunnelDescr].addInfo(oidString, value)
 	
 	def _getLspInfos(self, index):
-		infoVect = ["mplsTunnelSetupPrio", "mplsTunnelHoldingPrio", "mplsTunnelRole", "mplsTunnelAdminStatus", "mplsTunnelOperStatus"]
+		infoVect = ["mplsTunnelSetupPrio", "mplsTunnelHoldingPrio", "mplsTunnelRole", "mplsTunnelAdminStatus", "mplsTunnelOperStatus", "mplsTunnelPerfHCBytes"]
 		for oidString in infoVect:
 			oid = string_to_OID(oidString)
 			oid += '.' + index
