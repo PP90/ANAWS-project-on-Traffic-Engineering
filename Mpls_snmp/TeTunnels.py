@@ -99,6 +99,8 @@ class TeTunnels(object):
 				self._LspIdMap[index] = tunnelDescr
 				#add an object to the dictionary "_LspTable"
 				LspInstance = Container(tunnelDescr)
+				LspInstance.addInfo("Source", source_ip)
+				LspInstance.addInfo("Dest", dest_ip)
 				self._LspTable[tunnelDescr] = LspInstance
 			row = next_record(walk)
 	
@@ -213,11 +215,25 @@ class TeTunnels(object):
 
 			tunnelDescr = self._LspIdMap[index]
 			self._LspTable[tunnelDescr].addInfo(oidString, value)
+	
+	def _getLspInfos(self, index):
+		infoVect = ["mplsTunnelSetupPrio", "mplsTunnelHoldingPrio", "mplsTunnelRole", "mplsTunnelAdminStatus", "mplsTunnelOperStatus"]
+		for oidString in infoVect:
+			oid = string_to_OID(oidString)
+			oid += '.' + index
+			#get = snmpget(oid, self._rAddress, self._cString)
+			#value = get[0][1]
+			walk = snmpwalk(oid, self._rAddress, self._cString)
+			value = self._getValueFromResponse(walk)
+			tunnelDescr = self._LspIdMap[index]
+			self._LspTable[tunnelDescr].addInfo(oidString, value)
 		
 	def _populateLspTable(self):
 		for index in self._LspIdMap.keys():
+			#Get the additional informations from the mplsTunnelTable
+			self._getLspInfos(index)
 			#Get and insert the computed path
 			self._getComputedPaths(index)
 			#Get and insert the reserved resources
-			self._getResources(index) 
+			self._getResources(index)
 	
