@@ -18,7 +18,7 @@ class Container(object):
 	
 	def __str__(self):
 		returnString = "Name: " + self._name + '\n'
-		for elem in self._info.keys():
+		for elem in sorted(self._info.keys()):
 			returnString += '\t' + elem + ": " + str(self._info[elem]) + '\n'
 		return returnString
 	
