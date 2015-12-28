@@ -3,17 +3,19 @@ import subprocess
 import re
 import pprint
 
+
 def decodeTopology(output):
-    #variabili
+    #var
     startRow = 0
     listIP = []
 
-    #divide it in rows
-    rows = output.split('\n')
     #regular expression
     rule1 = re.compile('Router Link States')
     rule2 = re.compile('Link ID')
     rule3 = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
+
+    #divide it in rows
+    rows = output.split('\n')
 
     #search for "Router Link States"
     for i in range(0, len(rows)):
@@ -47,8 +49,6 @@ def decodeTopology(output):
     return listIP
 
 
-
-
 def findDr(draddress, listInfo, originalNode):
     for i in range(0, len(listInfo)):
         routes = listInfo[i]['nRoutes']
@@ -59,10 +59,10 @@ def findDr(draddress, listInfo, originalNode):
     return -1
 
 
-
 def buildTopologyMatrix(interfaces):
     listInfo = []
-    topologyMatrix = [[0 for x in range(len(interfaces))] for x in range(len(interfaces))]
+    topologyMatrix = [[0 for x in range(len(interfaces))]
+                        for x in range(len(interfaces))]
 
     ruleIP = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
 
@@ -70,14 +70,11 @@ def buildTopologyMatrix(interfaces):
         listInfo.append({})
         listInfo[len(listInfo) - 1]['routerId'] = i
         cmd = 'vtysh -c "show ip ospf database router ' + i + '"'
-        output = subprocess.check_output(cmd , shell = True)
+        output = subprocess.check_output(cmd, shell=True)
         rows = output.split('\n')
         #pprint.pprint(rows)
 
-        #rules
-        #rule1 = re.compile('Transit Network')
-        #next line is (Link ID) Designated Router address: 10.2.2.2
-        #next line is (Link Data) Router Interface address: 10.2.2.1
+        #find OSPF link
         counter = 0
         for row in range(0, len(rows)):
             if(re.search('Link connected to: a Transit Network', rows[row]) is not None):
@@ -100,8 +97,7 @@ def buildTopologyMatrix(interfaces):
     return topologyMatrix
 
 
-
-output = subprocess.check_output('vtysh -c "show ip ospf database"', shell = True)
+output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
 interfaces = decodeTopology(output)
 print(interfaces)
 matrix = buildTopologyMatrix(interfaces)
