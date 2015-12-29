@@ -2,7 +2,7 @@
 !!!!!!!!!!!!!!!!!!!!!!! An object list is created. It contains the if in and out octets
 snmp mib bulkstat object-list objList
 add ifInOctets 
-add ifOutCtets
+add ifOutOctets
 exit
 !!!!!!!!!!! A schema is created. It this case the schema refers to FastEthernet 0/0 interface
 snmp mib bulkstat schema FA00_schema

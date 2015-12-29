@@ -22,7 +22,13 @@ class router:
 
 	def set_hostname(self):
 		self.hostname=hostname
+		
+	def set_in_bytes_to_if(self, in_byte, index_if):
+		self.interfaces[index_if].set_old_in_byte(in_byte)
 
+	def set_out_bytes_to_if(self, out_byte, index_if):
+		self.interfaces[index_if].set_old_out_byte(out_byte)
+	
 	def add_if(self, new_iterface):
 		interfaces.append(new_iterface)
 
@@ -31,3 +37,6 @@ class router:
 
 	def get_interfaces(self):
 		return self.interfaces
+
+	def get_interface(self, index):
+		return self.interfaces[index]

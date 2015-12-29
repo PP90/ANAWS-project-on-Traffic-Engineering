@@ -3,6 +3,8 @@ import time
 import socket, struct
 from if_res import if_res
 from router import router
+from subprocess import call
+import subprocess
 
 debug=0
 
@@ -158,17 +160,57 @@ def get_utilization(address, r):
 				print '(#', n_rel, ')', ' The  in utilization ', if_name,'interface (ID:', if_id,') is ', in_utilization, '% (if speed: ',if_speed,' )';
 				print '(#', n_rel, ')', ' The  out utilization ', if_name,'interface (ID:', if_id,') is ', out_utilization, '% (if speed: ',if_speed,' )\n';
 	
-			
 
+def open_last_VFile(router):
+	hostname=router.get_hostname()
+	bash_command='ls VFiles/| egrep "'+hostname+'"|tail -1'#giving the list of file related to hostname is taken the last VFile sent by this router
+	name_file=subprocess.check_output(bash_command, shell=True)
+	name_file=name_file[:-1]
+	print "name file:", name_file #The \n character won't be considered
+	return name_file
+
+def get_obj_from_file(name_file, router):
+	in_bytes=-1;
+	out_bytes=-1;
+	f=open('VFiles/'+name_file, 'r')
+	lines= f.readlines()
+	if_list=router.get_interfaces()
+	ifs_names=[];
+	for interface in if_list:
+		ifs_names.append(interface.get_name())
+
+	for idx,name_if in enumerate(ifs_names):
+		for line in lines:
+			if name_if in line:
+				
+				tmp=line.split(",",1)[1]	
+				tmp=tmp.split(",",1)[1]
+				tmp=tmp.split(",",1)[1]
+				in_bytes=int(tmp.split(", ",1)[0])
+				out_bytes=int(tmp.split(", ",1)[1])
+				router.set_in_bytes_to_if(in_bytes, idx)
+				router.set_out_bytes_to_if(out_bytes, idx)
+	if_list=router.get_interfaces()
+	for interface in if_list:
+		interface.display_info()
+		print 'in', interface.get_old_in_byte()
+		print 'out',interface.get_old_out_byte()
+	
 #######MAIN
 ##In some way put the output of buildblablabla file in this list. TODO
-addresses=['10.1.1.2','192.168.3.1']
+addresses=['192.168.3.1','10.1.1.2']##Addresses list hard coded
 routers_info=[]
 for address in addresses:
 	ifs_number=int(get_if_number(address))
 	r=router(get_hostname(address),address, get_ifs_info(address, ifs_number))
 	routers_info.append(r)
-	r.display_info()
+
+name_file=open_last_VFile(routers_info[1])
+get_obj_from_file(name_file, routers_info[1])
+
+if(debug):
+	for router in routers_info:
+		router.display_info()
 
 #get_utilization(address, r) In case of polling utilizzation
 
