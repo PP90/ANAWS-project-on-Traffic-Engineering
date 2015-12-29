@@ -84,8 +84,9 @@ def buildTopologyMatrix(interfaces):
                     listInfo[len(listInfo) - 1][str(counter) + '_ip'] = ruleIP.search(rows[row + 2]).group()
                 counter = counter + 1
         listInfo[len(listInfo) - 1]['nRoutes'] = counter
-
     #pprint.pprint(listInfo)
+
+    #build matrix
     for i in range(0, len(listInfo)):
         routes = listInfo[i]['nRoutes']
         for j in range(0, routes):
@@ -97,8 +98,20 @@ def buildTopologyMatrix(interfaces):
     return topologyMatrix
 
 
-output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
-interfaces = decodeTopology(output)
-print(interfaces)
-matrix = buildTopologyMatrix(interfaces)
-pprint.pprint(matrix)
+def getTopology():
+    #output of the command
+    output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
+
+    #return the ip list of the routers
+    interfaces = decodeTopology(output)
+    #print('interfaces')
+    #pprint.pprint(interfaces)
+    #print('\n')
+
+    #return matrix topology
+    matrix = buildTopologyMatrix(interfaces)
+    print('matrix')
+    pprint.pprint(matrix)
+    print('\n')
+
+getTopology()
