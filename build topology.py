@@ -107,8 +107,11 @@ def getTopology():
 
     #return interface list & matrix topology
     interfaceList, matrix = buildTopologyMatrix(interfaces)
+    return interfaceList, matrix
 
 
 #lista, matrice = getTopology()
+#print('lista')
 #pprint.pprint(lista)
+#print('\nmatrice')
 #pprint.pprint(matrice)
