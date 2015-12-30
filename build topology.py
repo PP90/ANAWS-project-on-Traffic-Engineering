@@ -95,7 +95,7 @@ def buildTopologyMatrix(interfaces):
             if(k < 0):
                 print 'ERROR'
             topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
-    return topologyMatrix
+    return listInfo, topologyMatrix
 
 
 def getTopology():
@@ -104,14 +104,11 @@ def getTopology():
 
     #return the ip list of the routers
     interfaces = decodeTopology(output)
-    #print('interfaces')
-    #pprint.pprint(interfaces)
-    #print('\n')
 
-    #return matrix topology
-    matrix = buildTopologyMatrix(interfaces)
-    print('matrix')
-    pprint.pprint(matrix)
-    print('\n')
+    #return interface list & matrix topology
+    interfaceList, matrix = buildTopologyMatrix(interfaces)
 
-getTopology()
+
+#lista, matrice = getTopology()
+#pprint.pprint(lista)
+#pprint.pprint(matrice)
