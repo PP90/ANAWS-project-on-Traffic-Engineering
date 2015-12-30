@@ -34,9 +34,8 @@ class router:
 		self.hostname=hostname
 
 	def get_inout_bytes_diff(self,in_byte, out_byte,index_if):
-		in_diff, out_diff=self.interfaces[index_if].set_new_inout_byte(in_byte, out_byte)
-		return in_diff, out_diff		 
-	
+		self.interfaces[index_if].set_new_inout_byte(in_byte, out_byte)
+		 	
 	def add_if(self, new_iterface):
 		interfaces.append(new_iterface)
 
