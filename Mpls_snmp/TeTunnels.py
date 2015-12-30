@@ -22,6 +22,11 @@ class TeTunnels(object):
 	
 	def start(self):
 		"""This function executes the algorithm and it populates the two tables"""
+		#First of all, clear the data structure
+		self._ConfiguredTunnels = {}
+		self._LspTable = {}
+		self._NameIdMap = {}
+		self._LspIdMap = {}
 		
 		"""First phase: get the configured tunnel names"""
 		self._getTunnelName()
