@@ -237,17 +237,19 @@ def get_utilization_from_VFile(routers_list):
                         ##TODO Generalize the code to obtain the interfaces utilization for all router in the router list
 
 
-def print_ifs_info(router):
+def get_ifs_info(router):
         if_names, if_speeds=router.get_ifs_info() ##Functions asked from Gigi
         for i, interface_name in enumerate(if_names):
                 print interface_name, ',',if_speeds[i]
+	return if_names, if_speeds
+
 
 #######MAIN
 ##In some way put the output of buildblablabla file in the addresses list. TODO
 polling=0
 addresses_list=['192.168.3.1','10.1.1.2']##Addresses list in hard coded way
 routers_list=get_routers_list(addresses_list)
-##print_ifs_info(routers_list[0]) //Function asked for Luigi
+##get_ifs_info(routers_list[0]) //Function asked for Luigi
 
 
 counter=0
