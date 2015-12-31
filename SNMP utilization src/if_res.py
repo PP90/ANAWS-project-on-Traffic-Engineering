@@ -58,9 +58,7 @@ class if_res:
 		
 		in_byte_diff=self.new_ifInBytes-self.old_ifInBytes
 		out_byte_diff=self.new_ifOutBytes-self.old_ifOutBytes
-		print self.name
-		print "(IN)  The difference is: ",in_byte_diff
-		print "(OUT) The difference is: ",out_byte_diff		
+		print self.name	
 		return in_byte_diff,out_byte_diff
 	
 

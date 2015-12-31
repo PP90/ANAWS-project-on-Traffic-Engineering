@@ -27,7 +27,6 @@ class router:
 		self.old_timeUp=self.new_timeUp
 		self.new_timeUp=timeUp
 		diff_timeUp=self.new_timeUp-self.old_timeUp
-		print "diff timeUp: ", diff_timeUp
 		return diff_timeUp
 
 	def set_hostname(self):
@@ -48,3 +47,15 @@ class router:
 
 	def get_interface(self, index):
 		return self.interfaces[index]
+
+	def get_ifs_info(self):
+		name_list=[]
+		speed_list=[]
+		for interface in self.interfaces:
+			name_list.append(interface.get_name())
+			speed_list.append(interface.get_if_speed())
+		return name_list, speed_list
+
+
+
+
