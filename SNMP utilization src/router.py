@@ -21,17 +21,24 @@ class router:
 		print "Time up: ",self.old_timeUp
 		for x in self.interfaces:
 			x.display_info()
-
+	##A new time up values is set and then is computed the difference between old and new timeUp
 	def get_timeUp_diff(self, timeUp):
-		
 		self.old_timeUp=self.new_timeUp
 		self.new_timeUp=timeUp
 		diff_timeUp=self.new_timeUp-self.old_timeUp
 		return diff_timeUp
 
-	def set_hostname(self):
+	def get_old_timeUp(self):
+		return self.old_timeUp
+
+	def set_hostname(self, hostname):
 		self.hostname=hostname
 
+	def set_old_timeUp(self, old_timeUp):
+		self.old_timeUp=old_timeUp
+
+
+	##A new byte in and out valuesare set and then is compute the difference between old and new in out bytes
 	def get_inout_bytes_diff(self,in_byte, out_byte,index_if):
 		in_diff, out_diff=self.interfaces[index_if].set_new_inout_byte(in_byte, out_byte)
 		return in_diff, out_diff		 
@@ -47,6 +54,9 @@ class router:
 
 	def get_interface(self, index):
 		return self.interfaces[index]
+
+	def get_address(self):
+		return self.address
 
 	def get_ifs_info(self):
 		name_list=[]

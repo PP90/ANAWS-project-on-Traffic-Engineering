@@ -1,9 +1,0 @@
-Schema-def FA00_schema "%u, %s ,%s ,%u, %u"
-       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
-Schema-def FA10_schema "%u, %s ,%s ,%u, %u"
-       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
-Schema-def GLOBAL "%s, %s, %u, %u, %u, %u, %u"
-       hostname date timeofday sysuptime cpu5min cpu1min cpu5sec
-FA00_schema: 1014943596, FastEthernet0/0, .1, 63001, 122210
-FA10_schema: 1014943596, FastEthernet1/0, .2, 45861, 62691
-Global: R2, 20020301, 004736, 2856, 0%, 0%, 0%

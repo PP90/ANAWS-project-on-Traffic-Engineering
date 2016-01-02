@@ -20,7 +20,20 @@ def get_hostname(address):
 	hostname=varBinds[0].prettyPrint().split("= ",1)[1];
 	return hostname
 
+##Given the router object in input, this function gets through the SNMP protocol the Router timeUP
+def get_timeUp_SNMP(router):
+	errorIndication, errorStatus, errorIndex, varBinds = next(
+		    	getCmd(SnmpEngine(),#SysUptime
+			   	CommunityData('public', mpModel=0),
+			   	UdpTransportTarget((router.get_address(), 161)),#Address and port
+			   	ContextData(),ObjectType(ObjectIdentity("1.3.6.1.2.1.1.3.0"))))
 
+	if errorIndication:
+		print(errorIndication)
+	elif errorStatus:
+		print('%s at %s' % (errorStatus.prettyPrint(),errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
+	timeUp=varBinds[0].prettyPrint().split("= ",1)[1];
+	return timeUp
 
 ##Given in input the router address and the number of interfaces of router, the function returns the list of interfaces
 def get_ifs_info(address, number_if):
@@ -94,63 +107,58 @@ def get_if_number(address):
 	return if_number
 
 ##Given in input an address router this function prints out the utilization at each interface
-##TODO: generalize for n addresses
-def get_utilization_polling(address):
-	old_ifInBytes=0;
-	old_ifOutBytes=0;
-	old_TimeUp=0;
-	how_much_often=1;
+
+def get_utilization_polling(routers_list, how_much_often):
 	n_rel=0;
 	while True:
 		n_rel=n_rel+1;
 		time.sleep(how_much_often);
-		print '\n'
-		for x in ifs_list:
-			if_id=int(x.get_id())
-			if_name=x.get_name()
-			if_speed=float(x.get_if_speed())
+		for router in routers_list:
+			ifs_list=router.get_interfaces();
+			print '\n###',n_rel, '(Router ',router.get_hostname(),')'
 		
-			
+			timeUp=get_timeUp_SNMP(router)
+			timeUp_diff=router.get_timeUp_diff(int(timeUp))
+			for interface in ifs_list:##For each interface in the router will be get the number of input and output byes
+				if_id=int(interface.get_id())
+				if_name=interface.get_name()
+				if_speed=float(interface.get_if_speed())
 		
-			errorIndication, errorStatus, errorIndex, varBinds = next(
-		    	getCmd(SnmpEngine(),
+				errorIndication, errorStatus, errorIndex, varBinds = next(getCmd(SnmpEngine(),
 			   	CommunityData('public', mpModel=0),
-			   	UdpTransportTarget((address, 161)),#Address and port
-			   	ContextData(),
-		   			ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.10."+`if_id`)),#InOctects
-		   			ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.16."+`if_id`)),#OutOctect
-			 		ObjectType(ObjectIdentity("1.3.6.1.2.1.1.3.0"))#SysUptime
-			 	 	))
+			   	UdpTransportTarget((router.get_address(), 161)),#Address and port
+			   	ContextData(),ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.10."+`if_id`)),#InOctects
+		   			ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.16."+`if_id`))))#OutOctect
 
-			if errorIndication:
-	  			print(errorIndication)
-			elif errorStatus:
-				print('%s at %s' % (
-					errorStatus.prettyPrint(),
-					errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
-			if(n_rel>1):
+				if errorIndication:
+	  				print(errorIndication)
+				elif errorStatus:
+					print('%s at %s' % (errorStatus.prettyPrint(),errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
+
 				ifInBytes=int(varBinds[0].prettyPrint().split("= ",1)[1]);
 				ifOutBytes=int(varBinds[1].prettyPrint().split("= ",1)[1]);
-				timeUp=int(varBinds[2].prettyPrint().split("= ",1)[1]);
 
-				delta_ifInBytes=int(ifInBytes)- x.get_old_in_byte()
-				delta_ifOutBytes=int(ifOutBytes)-x.get_old_out_byte()
-				delta_timeUp=int(timeUp)-x.get_old_timeUp()
-
+				delta_ifInBytes=int(ifInBytes)- interface.get_old_in_byte()
+				delta_ifOutBytes=int(ifOutBytes)-interface.get_old_out_byte()
+				debug=0
 				if(debug):
-					print 'IN OUT bytes and TIME (NEW)', ifInBytes, ifOutBytes, timeUp
-					print 'IN OUT bytes and TIME (OLD)', x.get_old_in_byte(), x.get_old_out_byte(), x.get_old_timeUp()
-					print 'delta values: ', delta_ifInBytes, delta_ifOutBytes, delta_timeUp
-		
-				x.set_old_in_byte(ifInBytes)
-				x.set_old_out_byte(ifOutBytes)
-				x.set_old_timeUp(timeUp)
-				
+					print 'Router: ',router.get_hostname()
+					print 'Interface: ',interface.get_name()
+					print '[NEW]','IN_Bytes: ', ifInBytes, 'OUT_Bytes: ',ifOutBytes, 'Time_Up: ', timeUp
+					print '[OlD]','IN_Bytes: ', interface.get_old_in_byte(), 'OUT_Bytes: ',interface.get_old_out_byte(), 'Time_Up: ', router.get_old_timeUp()
+					print 'Delta values: ', delta_ifInBytes, delta_ifOutBytes, timeUp_diff
+
+				interface.set_old_in_byte(ifInBytes)
+				interface.set_old_out_byte(ifOutBytes)
 				##The utilization takes into account also the 	packets get from SNMP
-				in_utilization=((delta_ifInBytes)*8*100)/(if_speed*(delta_timeUp/100));
-				out_utilization=((delta_ifOutBytes)*8*100)/(if_speed*(delta_timeUp/100));
-				format(in_utilization,'.3f')
-				format(out_utilization,'.3f')
+				if(n_rel>1):
+					in_utilization=0
+					out_utilization=0
+					format(in_utilization,'.3f')
+					format(out_utilization,'.3f')
+					in_utilization=((delta_ifInBytes)*8*100)/(if_speed*(timeUp_diff/100));
+					out_utilization=((delta_ifOutBytes)*8*100)/(if_speed*(timeUp_diff/100));
+				
 				
 				##Some times the shown utilization is bigger than one. This it could be due to buffer o burst packets incoming. In order to avoid this kind of situation, it will be one if it is greater than one. It is correct this line of thinking ?
 				
@@ -158,8 +166,8 @@ def get_utilization_polling(address):
 				#if (out_utilization>100): out_utilization=100
 				
 
-				print '(#', n_rel, ')', ' The  in utilization ', if_name,'interface (ID:', if_id,') is ', in_utilization, '% (if speed: ',if_speed,' )';
-				print '(#', n_rel, ')', ' The  out utilization ', if_name,'interface (ID:', if_id,') is ', out_utilization, '% (if speed: ',if_speed,' )\n';
+					print '(#', n_rel, ')', ' The  in utilization ', if_name,'interface (ID:', if_id,') is ', in_utilization, '% (if speed: ',if_speed,' )';
+					print '(#', n_rel, ')', ' The  out utilization ', if_name,'interface (ID:', if_id,') is ', out_utilization, '% (if speed: ',if_speed,' )\n';
 	
 ##Given in input a router Object, this function return the most recent VFile associated to that router
 def open_last_VFile(router):
@@ -237,19 +245,24 @@ def get_utilization_from_VFile(routers_list):
                         ##TODO Generalize the code to obtain the interfaces utilization for all router in the router list
 
 
-def get_ifs_info(router):
+def print_ifs_info(router):
         if_names, if_speeds=router.get_ifs_info() ##Functions asked from Gigi
         for i, interface_name in enumerate(if_names):
                 print interface_name, ',',if_speeds[i]
-	return if_names, if_speeds
-
 
 #######MAIN
 ##In some way put the output of buildblablabla file in the addresses list. TODO
-polling=0
+polling=1
 addresses_list=['192.168.3.1','10.1.1.2']##Addresses list in hard coded way
 routers_list=get_routers_list(addresses_list)
-##get_ifs_info(routers_list[0]) //Function asked for Luigi
+polling_interval=1
+
+if(polling):
+	get_utilization_polling(routers_list, polling_interval)
+
+
+
+##print_ifs_info(routers_list[0]) //Function asked for Luigi
 
 
 counter=0
@@ -261,13 +274,13 @@ while True:
         if(counter==1):
                 print "!!!!!!!The first time the utilization has not be taken in consideration!"
 
-	name_file=open_last_VFile(routers_list[1])
+	name_file=open_last_VFile(routers_list[0])
 
 	if(old_name_file==name_file):##This happens when it doesn't received a new VFile
 		print 'Something is not changed. Nothing will be updated'
 	else:
-		print 'Something is changed in router ',routers_list[1].get_hostname() +'. Information will be updated.'
-		update_info_router(name_file, routers_list[1])
+		print 'Something is changed in router ',routers_list[0].get_hostname() +'. Information will be updated.'
+		update_info_router(name_file, routers_list[0])
 		#for router in routers_info:
 		#	router.display_info()
 		#	print '\n'
@@ -275,6 +288,4 @@ while True:
 	old_name_file=name_file
 	time.sleep(30)
 
-if(polling):
-	get_utilization(address, r)
-	
+
