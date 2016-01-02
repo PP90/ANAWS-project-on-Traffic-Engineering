@@ -42,8 +42,8 @@ class TeTunnels(object):
 		"""The OID for mpls-te is composed as follows: 'resource_oid.tunnel_id.tunnel_instance.source_ip_address.destination_ip_address'"""
 		resource = response_oid[:-4]
 		#the ip addresses are in decimal format, so they need convertion
-		dest_ip = str(ip_address(response_oid[-1]))
-		source_ip = str(ip_address(response_oid[-2]))
+		dest_ip = str(IPv4Address(response_oid[-1]))
+		source_ip = str(IPv4Address(response_oid[-2]))
 		tun_instance = response_oid[-3]
 		tun_id = response_oid[-4]
 		return resource, tun_id, tun_instance, source_ip, dest_ip
