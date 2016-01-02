@@ -1,6 +1,9 @@
 from Tkinter import *
 import tkFont
-
+from GuiUtilities import *
+from ttk import * 
+import netaddr
+import tkMessageBox
 
 class TeGUI(Frame):
 	def __init__(self, RefToManager):
@@ -12,6 +15,7 @@ class TeGUI(Frame):
 	def setRouterList(self, RouterObjectList):
 		return
 	def sendAlertMsg(self, stringMsg):
+		tkMessageBox.showwarning(title = "Warning!", message = stringMsg, parent = self)
 		return
 	def setTunnelList(self, routerName ,TunnelObjectList):
 		return
@@ -27,48 +31,61 @@ class TeGUI(Frame):
 		self.master.rowconfigure(0, weight=1)
 		self.master.columnconfigure(0, weight=1)
 		self.grid(sticky = W+E+N+S)
+		#Set the style
+		self.style = Style()
+		self.style.theme_use("clam")
 		
-		#Set the number of grid columns and rows of the window, for the moment we need 3 rows and 1 column
-		for r in range(3):
-            		self.rowconfigure(r, weight=1)   
-        	for c in range(1):
-            		self.columnconfigure(c, weight=1)
-            	
+		#Set the number of grid columns and rows of the window, for the moment we need 2 rows and 1 column
+		setGridWeight(self, 2, 1)
             	
             	#Set the first label string
 		self._titleFont = tkFont.Font(family = "Verdana", size = 16, weight = "bold")
 		self._title = Label (self, font = self._titleFont, text = "Traffic Engineering Dashboard")
-		self._title.grid(column = 0, row = 0,  columnspan = 2, sticky = W+E+N+S)
+		self._title.grid(column = 0, row = 0)
             		
 		#Set the LabelFrame that will contain the form
-		labelframe = LabelFrame(self)
-		labelframe.grid(padx = 10, pady = 10,row = 1, column= 0, columnspan=2, rowspan=2,sticky = W+E+N+S)
-		#Set the number of grid columns and rows inside the LabelFrame, we need 3 rows and 2 column
-		for r in range(3):
-            		labelframe.rowconfigure(r, weight=1)    
-        	for c in range(2):
-            		labelframe.columnconfigure(c, weight=1)
-            		
+		labelframe = createFrame(self, 3, 2, 1)
+		labelframe.grid(padx = 10, pady = 10,row = 1, column= 0,sticky = W+E+N+S)
+		
 		#Set the 1st row 
-		self._addressLabel = Label (labelframe, text = "Router IP address:")
-		self._addressLabel.grid(column = 0, row = 0, sticky = W+N+S)
+		addressLabel = Label (labelframe, text = "Router IP address:")
+		addressLabel.grid(column = 0, row = 0, sticky = W+N+S)
 		self._ipAddress = StringVar()
-		self._ipAddressEntry = Entry(labelframe, textvariable = self._ipAddress)
-		self._ipAddressEntry.grid(padx = 5,column = 1, row = 0, sticky = W)
+		ipAddressEntry = Entry(labelframe, textvariable = self._ipAddress)
+		ipAddressEntry.grid(padx = 5,column = 1, row = 0)
 		#Set the 2nd row
-		self._snmpLabel = Label (labelframe, text = "SNMP community string:")
-		self._snmpLabel.grid(column = 0, row = 1, sticky = W+N+S)
+		snmpLabel = Label (labelframe, text = "SNMP community name:")
+		snmpLabel.grid(column = 0, row = 1, sticky = W+N+S)
 		self._snmpCommunity = StringVar()
-		self._snmpCommunity = Entry(labelframe, textvariable = self._snmpCommunity)
-		self._snmpCommunity.grid(padx = 5, column = 1, row = 1, sticky = W)
+		snmpCommunityEntry = Entry(labelframe, textvariable = self._snmpCommunity)
+		snmpCommunityEntry.grid(padx = 5, column = 1, row = 1)
 		#Set the 3rd row
-		self._startButton = Button(labelframe, text = "Start", command = self._startCmd)
-		self._startButton.grid(padx = 5, column = 1, row = 2,sticky = W) 
+		startButton = Button(labelframe, text = "Start", command = self._startCmd)
+		startButton.grid(padx = 5, column = 1, row = 2) 
 		
 		#create the GUI main loop
 		self.mainloop()
 	
 	def _startCmd(self):
+		#When the start button is pressed we need to check the inputs values
+		alertMsg = ""
+		#Check the SNMP community name
+		if self._snmpCommunity.get() == "":
+			alertMsg += "Community name is empty\n"
+		else:
+			self._snmpCommunityName = self._snmpCommunity.get()
+		#Check the router IP address (note that it may be IPv4 or IPv6 address)
+		temp = self._ipAddress.get()
+		try:
+			self._routerIpAddr = netaddr.IPAddress(temp)
+		except netaddr.AddrFormatError:
+			alertMsg += "Router IP address is not valid\n"
+			
+		#If the alertMsg is not empty it means that something went wrong
+		if alertMsg != "":
+			self.sendAlertMsg(alertMsg)
+			return
+		
 		return
 
 #FOR TESTING		
