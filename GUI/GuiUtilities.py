@@ -1,9 +1,9 @@
 from Tkinter import *
 
-def createFrame(parent, nRows, nCols, labelFrame):
+def createFrame(parent, nRows, nCols, labelFrame = False, msg = None):
 	fr = None
-	if labelFrame == 1:
-		fr = LabelFrame(parent)
+	if labelFrame == True:
+		fr = LabelFrame(parent, text=msg)
 	else:
 		fr = Frame(parent)
 	for r in range(nRows):
@@ -12,8 +12,14 @@ def createFrame(parent, nRows, nCols, labelFrame):
             	fr.columnconfigure(c, weight=1)
         return fr
         
-def setGridWeight(frame, nRows, nCols):
+def setGridWeight(frame, nRows, nCols, WeightsRows = None, WeightsCols = None):
 	for r in range(nRows):
-        	frame.rowconfigure(r, weight=1)    
+		if WeightsRows == None:
+        		frame.rowconfigure(r, weight=1)  
+        	else:
+        		frame.rowconfigure(r, weight=WeightsRows[r])  
         for c in range(nCols):
-            	frame.columnconfigure(c, weight=1)
+            	if WeightsCols == None:
+        		frame.columnconfigure(c, weight=1)  
+        	else:
+        		frame.columnconfigure(c, weight=WeightsCols[c])  
