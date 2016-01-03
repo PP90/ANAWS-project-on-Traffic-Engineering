@@ -9,11 +9,12 @@ class if_res:
 	old_ifInBytes=0 ##old values of in and output bytes
 	old_ifOutBytes=0
 
-	old_timeUp=0;##old values of in and output bytes
-
 	new_ifInBytes=0 ####new values of in and output bytes
 	new_ifOutBytes=0
 	
+	in_utilization=0
+	out_utilization=0
+
 	def __init__(self, id_if, name, speed):
 		self.id_if=id_if
 		self.name=name
@@ -58,17 +59,23 @@ class if_res:
 		
 		in_byte_diff=self.new_ifInBytes-self.old_ifInBytes
 		out_byte_diff=self.new_ifOutBytes-self.old_ifOutBytes
-		print self.name	
 		return in_byte_diff,out_byte_diff
 	
 
 	def set_old_timeUp(self, old_timeUp):
 		self.old_timeUp=old_timeUp;
 
+	def set_in_out_utilization(self, in_uti, out_uti):
+		self.in_utilization=in_uti
+		self.out_utilization=out_uti
+
 	def get_old_in_byte(self):
 		return self.old_ifInBytes
 
 	def get_old_out_byte(self):
 		return self.old_ifOutBytes
+
+	def get_in_out_utilization(self):
+		return self.in_utilization, self.out_utilization
 
 
