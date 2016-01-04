@@ -191,6 +191,20 @@ def convert_in_second(time_up):
 	time_up=time_up/100000*60
 	return time_up
 
+
+
+##given a name file, this function will delete the correspoding (V)file
+def delete_file(name_file):
+	bash_command='rm -f VFiles/'+name_file
+	print subprocess.check_output(bash_command, shell=True)
+
+
+##Given the object router in input, this function delete all corresponding VFiles
+def clear_VFiles(router):
+	bash_command='rm -f VFiles/bulktatistics_R'+router.get_hostname()+'*'
+	print bash_command
+	print subprocess.check_output(bash_command, shell=True)
+
 #Given the name_file (which is the most recent for a specific router) and a router object, this function prints out the in and out utilization of all interfaces of a router. The router object is passed as parameter
 def update_info_router(name_file, router):
 	in_bytes=-1;
@@ -220,10 +234,13 @@ def update_info_router(name_file, router):
 				in_utilization=(in_diff*8*100)/(if_speed*timeUp_diff)
                                 out_utilization=(out_diff*8*100)/(if_speed*timeUp_diff)
 				router.set_inout_utilization_if(idx, in_utilization, out_utilization)
-				
-        ##Since that the file is not anymore useful, has to be deleted.TODO	
+		
         f.close()
+	delete_file(name_file) ##Since that the file is not anymore useful, has to be deleted
+	print name_file, ' deleted'
 	return router
+
+
 
 ##Given the addresses list in input, this function returns the routers objects list.
 ##In particular a router object contains: the router hostname, its time up and a list of interfaces.
@@ -308,8 +325,11 @@ def get_utilization_router_VFile(router_list):
 
 
 
-#######MAIN
+#######MAIN#############################################
+
 ##In some way put the output of buildblablabla file in the addresses list. TODO
+
+
 
 ##Addresses list in hard coded way
 community_name='public'
@@ -323,7 +343,6 @@ routers_list=get_routers_list(addresses_list, community_name)
 ##What is needed are two parameter: the address of the router and the community name
 r=get_routers_list(address, community_name)##Return a router list giving in input the addresses list
 my_router=router()##Router without information. Used later
-
 
 ##Example #1 (Utilizations through VFile)
 ##The utilizations of interfaces of a single router r are obtained.
@@ -350,7 +369,7 @@ if(polling):
 ##The utilizations are obtained polling periodically all the information from all routers in the routers list.
 ##These parameters are needed: the routers_list, polling_interval and commnunity name.
 ##The routers_list can be obtained using the get_routers_list function.
-polling_periodic=1
+polling_periodic=0
 if(polling_periodic):
 	polling_interval=1##SECONDS
 	get_utilization_polling(routers_list, polling_interval, community_name)
