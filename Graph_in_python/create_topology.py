@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def draw_graph(graph, matrix_topology, interfaces_names, color_vector, labels=None, graph_layout='spectral', node_size=600, node_color='blue', 			node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6,
-               edge_text_pos=0.3, text_font='sans-serif'):
+               edge_text_pos=0.25, text_font='sans-serif'):
 
     # create networkx graph
 	G=nx.Graph()
@@ -25,13 +25,14 @@ def draw_graph(graph, matrix_topology, interfaces_names, color_vector, labels=No
 	for idx, node in enumerate(G.nodes()):
 		hostname='R'+str(idx+1)
 		labels[idx]=hostname
-	print color_vector
+
 	edge_labels=dict(zip(graph, interfaces_names))
 	nx.draw_networkx_nodes(G,graph_pos,node_size=node_size, alpha=node_alpha, node_color=node_color)
 	nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
-	nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos)
+	nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
 	nx.draw_networkx_labels(G, graph_pos, labels, font_size=16)
-    # show graph
+   	plt.axis('off')
+	plt.title('Network topology')
 	plt.show()
 
 def get_graph_and_arches(matrix_topology, matrix_interfaces):
@@ -53,26 +54,24 @@ def interfaces_list(matrix_interfaces):
 	for interface in matrix_interfaces:
 		if (interface!='0'):
 			interfaces_list.append(interface)
-	print interfaces_list
 	return interfaces_list
 
 def get_color_vector(matrix_utilization):
 	color_vector=[]
+	color_shades=['#2FFF91','#11FF00','#22FF00','#33FF00','#44FF00','#55FF00','#66FF00','#77FF00','#88FF00','#99FF00',
+'#AAFF00','#BBFF00','#CCFF00','#DDFF00','#EEFF00','#FFFF00','#FFEE00','#FFDD00','#FFCC00','#FFBB00',
+'#FFAA00','#FFAA00','#FF9900','#FF8800','#FF7700','#FF6600','#FF5500','#FF4400','#FF3300','#FF2200',
+'#FF1100','#FF0000','#FF0000','#FF0000']
 	green_threshold=25
 	red_threshold=75
 	for i,row in enumerate(matrix_utilization):
 		for j, element in enumerate(row):
 			if (j>i):
 				element=int(element)
+				index=element/3
 				#print '(i,j)= ','(',i,',',j,')','   ',element
-				if element>=0 and element <=green_threshold:
-					color_vector.append('g')
-
-				elif element >green_threshold and element<red_threshold:
-					color_vector.append('y')
-
-				elif element>=red_threshold:
-					color_vector.append('r')
+				if element!=-1:
+					color_vector.append(color_shades[index])
 	return color_vector
 
 matrix_topology=[[0, '10.1.1.1', '10.2.2.1', 0, 0, '192.168.3.1'],
@@ -90,7 +89,7 @@ matrix_interfaces=[[0, 'FA00', 'FA10', 0, 0, 'ETH20'],
  ['ETH20', 0, 0, 0, 0, 0]] ##HARD CODED INTERFACES MATRIX	
 
 
-matrix_utilization=[[-1, 20, 30, -1, -1, 40],
+matrix_utilization=[[-1, 20, 100, -1, -1, 0],
  [20, -1, -1, -1, 80, -1],
  [30, -1, -1, 55, -1, -1],
  [-1, -1, 55, -1, 20, -1],
