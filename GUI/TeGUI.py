@@ -28,7 +28,7 @@ class TeGUI(Frame):
 		#Set the window title
 		self.master.title("TE Dashboard")
 		#Set the window size
-		self._centerWindow()
+		centerWindow(self)
 		self.master.rowconfigure(0, weight=1)
 		self.master.columnconfigure(0, weight=1)
 		self.grid(sticky = W+E+N+S)
@@ -54,15 +54,20 @@ class TeGUI(Frame):
 		self._ipAddress = StringVar()
 		ipAddressEntry = Entry(self._labelframe, textvariable = self._ipAddress)
 		ipAddressEntry.grid(padx = 5,column = 1, row = 0)
+		#If the user press "Enter" go to the next window
+		ipAddressEntry.bind("<KeyPress-Return>", lambda event: self._startCmd())
 		#Set the 2nd row
 		snmpLabel = Label (self._labelframe, text = "SNMP community name:")
 		snmpLabel.grid(column = 0, row = 1, sticky = W+N+S)
 		self._snmpCommunity = StringVar()
 		snmpCommunityEntry = Entry(self._labelframe, textvariable = self._snmpCommunity)
 		snmpCommunityEntry.grid(padx = 5, column = 1, row = 1)
+		#If the user press "Enter" go to the next window
+		snmpCommunityEntry.bind("<KeyPress-Return>", lambda event: self._startCmd())
 		#Set the 3rd row
 		startButton = Button(self._labelframe, text = "Start", command = self._startCmd)
 		startButton.grid(padx = 5, column = 1, row = 2) 
+		
 		
 		#create the GUI main loop
 		self.mainloop()
@@ -100,7 +105,7 @@ class TeGUI(Frame):
 		return
 		
 	def _createMainWindow(self):
-		self._centerWindow(900, 600)
+		centerWindow(self,900, 600)
 		#Set the number of grid columns and rows of the window, we need 2 rows and 2 column
 		setGridWeight(self, 2, 2,[5, 95],[70, 30])
 		#masterFrame = createFrame(self, 2,2,0)
@@ -129,18 +134,43 @@ class TeGUI(Frame):
 		#TUNNELS
 		tunnelsButton = Button(commandFrame, text = "TE tunnels", command = self._tunnels)
 		tunnelsButton.grid(padx = 5, column = 0, row = 3) 
+		#TODO: show the network topology in the "topologyFrame"
 		
-	def _centerWindow(self, w = 600, h = 400):
-		sw = self.master.winfo_screenwidth()
-		sh = self.master.winfo_screenheight()
-		x = (sw - w)/2
-		y = (sh - h)/2
-		self.master.geometry('%dx%d+%d+%d' % (w,h,x,y))
 		
 	def _refresh(self):
+		#TODO: call the right manager's function with correct parameters 
+		#RefToManager.getGraph()
 		return
 	def _settings(self):
+		#It creates a new little window where there will be the settable parameters
+		self._settingsFrame = Tk()
+		self._settingsFrame.title("Settings")
+		setGridWeight(self._settingsFrame, 3, 2)
+		centerWindow(self._settingsFrame, 400, 200)
+		self._settingsFrame.grid()
+		#Show two radio buttons to let the user decide the working mode: Synchronous or not
+		#TODO: qui ogni volta la variabile viene ricreata, andrebbe creata una volta 
+		self._pollingVar = IntVar()
+		pollingButton = Radiobutton(self._settingsFrame, text = "Synchronous mode", value = 1, variable = self._pollingVar)
+		noPollingButton = Radiobutton(self._settingsFrame, text = "Asynchronous mode", value = 0, variable = self._pollingVar)
+		pollingButton.grid(column = 0, row = 0, sticky = W)
+		noPollingButton.grid(column = 1, row = 0, sticky = E)
+		#Show the field to set the refresh time
+		refreshLabel = Label (self._settingsFrame, text = "Refresh time:")
+		refreshLabel.grid(column = 0, row = 1, sticky = W+N+S)
+		self._refreshTime = DoubleVar()
+		refreshEntry = Entry(self._settingsFrame, textvariable = self._refreshTime)
+		refreshEntry.grid(column = 1, row = 1)
+		#If the user press Enter, close the window
+		pollingButton.bind("<KeyPress-Return>", lambda event: self._closeSettings())
+		noPollingButton.bind("<KeyPress-Return>", lambda event: self._closeSettings())
+		refreshEntry.bind("<KeyPress-Return>", lambda event: self._closeSettings())
 		return
+	
+	def _closeSettings(self):
+		print self._pollingVar.get(),self._refreshTime.get()
+		self._settingsFrame.destroy()
+	
 	def _links(self):
 		return
 	def _tunnels(self):
