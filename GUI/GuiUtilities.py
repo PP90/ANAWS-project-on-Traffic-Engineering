@@ -23,3 +23,17 @@ def setGridWeight(frame, nRows, nCols, WeightsRows = None, WeightsCols = None):
         		frame.columnconfigure(c, weight=1)  
         	else:
         		frame.columnconfigure(c, weight=WeightsCols[c])  
+
+def centerWindow(frame, w = 600, h = 400):
+	try:
+		sw = frame.master.winfo_screenwidth()
+		sh = frame.master.winfo_screenheight()
+	except:
+		sw = frame.winfo_screenwidth()
+		sh = frame.winfo_screenheight()
+	x = (sw - w)/2
+	y = (sh - h)/2
+	try:
+		frame.master.geometry('%dx%d+%d+%d' % (w,h,x,y))
+	except:
+		frame.geometry('%dx%d+%d+%d' % (w,h,x,y))
