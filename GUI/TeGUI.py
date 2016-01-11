@@ -7,8 +7,15 @@ import tkMessageBox
 
 class TeGUI(Frame):
 	def __init__(self, RefToManager):
+		Frame.__init__(self)
 		#TODO: check for None parameter
 		self._RefToManager = RefToManager
+		self._refreshTime = DoubleVar()
+		self._pollingVar = IntVar()
+		self._ipAddress = StringVar()
+		self._snmpCommunity = StringVar()
+		#Set the default value equal to1, that is the sync mode
+		self._pollingVar.set(1)
 		self._startGUI()
 	
 	def setTopologyImg(self, imgPath, infoFlag):
@@ -24,7 +31,6 @@ class TeGUI(Frame):
 		return
 	"""This function creates the user interface with the first layout"""
 	def _startGUI(self):
-		Frame.__init__(self)
 		#Set the window title
 		self.master.title("TE Dashboard")
 		#Set the window size
@@ -51,7 +57,7 @@ class TeGUI(Frame):
 		#Set the 1st row 
 		addressLabel = Label (self._labelframe, text = "Router IP address:")
 		addressLabel.grid(column = 0, row = 0, sticky = W+N+S)
-		self._ipAddress = StringVar()
+		
 		ipAddressEntry = Entry(self._labelframe, textvariable = self._ipAddress)
 		ipAddressEntry.grid(padx = 5,column = 1, row = 0)
 		#If the user press "Enter" go to the next window
@@ -59,7 +65,7 @@ class TeGUI(Frame):
 		#Set the 2nd row
 		snmpLabel = Label (self._labelframe, text = "SNMP community name:")
 		snmpLabel.grid(column = 0, row = 1, sticky = W+N+S)
-		self._snmpCommunity = StringVar()
+		
 		snmpCommunityEntry = Entry(self._labelframe, textvariable = self._snmpCommunity)
 		snmpCommunityEntry.grid(padx = 5, column = 1, row = 1)
 		#If the user press "Enter" go to the next window
@@ -143,32 +149,30 @@ class TeGUI(Frame):
 		return
 	def _settings(self):
 		#It creates a new little window where there will be the settable parameters
-		self._settingsFrame = Tk()
+		self._settingsFrame = Toplevel(self)
 		self._settingsFrame.title("Settings")
 		setGridWeight(self._settingsFrame, 3, 2)
 		centerWindow(self._settingsFrame, 400, 200)
 		self._settingsFrame.grid()
 		#Show two radio buttons to let the user decide the working mode: Synchronous or not
-		#TODO: qui ogni volta la variabile viene ricreata, andrebbe creata una volta 
-		self._pollingVar = IntVar()
-		pollingButton = Radiobutton(self._settingsFrame, text = "Synchronous mode", value = 1, variable = self._pollingVar)
-		noPollingButton = Radiobutton(self._settingsFrame, text = "Asynchronous mode", value = 0, variable = self._pollingVar)
+		pollingButton = Radiobutton(self._settingsFrame, text="Synchronous mode", variable=self._pollingVar,value=1)
+		noPollingButton = Radiobutton(self._settingsFrame, text="Asynchronous mode", variable=self._pollingVar, value=0)
 		pollingButton.grid(column = 0, row = 0, sticky = W)
 		noPollingButton.grid(column = 1, row = 0, sticky = E)
 		#Show the field to set the refresh time
 		refreshLabel = Label (self._settingsFrame, text = "Refresh time:")
 		refreshLabel.grid(column = 0, row = 1, sticky = W+N+S)
-		self._refreshTime = DoubleVar()
 		refreshEntry = Entry(self._settingsFrame, textvariable = self._refreshTime)
 		refreshEntry.grid(column = 1, row = 1)
 		#If the user press Enter, close the window
 		pollingButton.bind("<KeyPress-Return>", lambda event: self._closeSettings())
 		noPollingButton.bind("<KeyPress-Return>", lambda event: self._closeSettings())
 		refreshEntry.bind("<KeyPress-Return>", lambda event: self._closeSettings())
+		self._settingsFrame.mainloop()
 		return
 	
 	def _closeSettings(self):
-		print self._pollingVar.get(),self._refreshTime.get()
+		print self._pollingVar.get(),str(self._refreshTime.get())
 		self._settingsFrame.destroy()
 	
 	def _links(self):
