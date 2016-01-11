@@ -10,12 +10,20 @@ class TeGUI(Frame):
 		Frame.__init__(self)
 		#TODO: check for None parameter
 		self._RefToManager = RefToManager
-		self._refreshTime = DoubleVar()
-		self._pollingVar = IntVar()
 		self._ipAddress = StringVar()
 		self._snmpCommunity = StringVar()
-		#Set the default value equal to1, that is the sync mode
-		self._pollingVar.set(1)
+		#Working mode: polling (synchronous)  = 1 or asynchronous = 0
+		self._Mode = 1
+		self._pollingVar = IntVar()
+		#Set the default value equal to 1, that is the sync mode
+		self._pollingVar.set(self._Mode)
+		#In case of polling: refresh time is minimum interval of time between a request and another
+		self._RefreshTime = 1
+		self._refreshTimeVar = DoubleVar()
+		#Default refresh time = 1 second
+		self._defaultRefreshTime = 1
+		self._refreshTimeVar.set(self._defaultRefreshTime)
+		#Start the GUI
 		self._startGUI()
 	
 	def setTopologyImg(self, imgPath, infoFlag):
@@ -154,25 +162,55 @@ class TeGUI(Frame):
 		setGridWeight(self._settingsFrame, 3, 2)
 		centerWindow(self._settingsFrame, 400, 200)
 		self._settingsFrame.grid()
+		
+		#Create the Label Frame for the two radio buttons
+		radioFrame = createFrame(self._settingsFrame, 1, 2, True, "Working mode")
+		radioFrame.grid(padx = 10, pady = 10,column = 0, row = 0, columnspan = 2, sticky = W+E+S+N)
 		#Show two radio buttons to let the user decide the working mode: Synchronous or not
-		pollingButton = Radiobutton(self._settingsFrame, text="Synchronous mode", variable=self._pollingVar,value=1)
-		noPollingButton = Radiobutton(self._settingsFrame, text="Asynchronous mode", variable=self._pollingVar, value=0)
-		pollingButton.grid(column = 0, row = 0, sticky = W)
-		noPollingButton.grid(column = 1, row = 0, sticky = E)
+		pollingButton = Radiobutton(radioFrame, text="Synchronous mode", variable=self._pollingVar,value=1)
+		noPollingButton = Radiobutton(radioFrame, text="Asynchronous mode", variable=self._pollingVar, value=0)
+		pollingButton.grid(column = 0, row = 0)
+		noPollingButton.grid(column = 1, row = 0)
+		
+		#Create the Label Frame for the parameters entries
+		entriesFrame = createFrame(self._settingsFrame, 1, 2, True, "Parameters")
+		entriesFrame.grid(padx = 10, pady = 10,column = 0, row = 1, columnspan = 2, sticky = W+E+S+N)
 		#Show the field to set the refresh time
-		refreshLabel = Label (self._settingsFrame, text = "Refresh time:")
-		refreshLabel.grid(column = 0, row = 1, sticky = W+N+S)
-		refreshEntry = Entry(self._settingsFrame, textvariable = self._refreshTime)
-		refreshEntry.grid(column = 1, row = 1)
+		refreshLabel = Label (entriesFrame, text = "Refresh time:")
+		refreshLabel.grid(column = 0, row = 0)
+		refreshEntry = Entry(entriesFrame, textvariable = self._refreshTimeVar)
+		refreshEntry.grid(column = 1, row = 0)
+		#Save button
+		saveButton = Button(self._settingsFrame, text = "Save", command = self._closeSettings)
+		saveButton.grid(column = 0, row = 2) 
+		#Cancel button
+		cancelButton = Button(self._settingsFrame, text = "Cancel", command = self._cancelSettings)
+		cancelButton.grid(column = 1, row = 2) 
+		
 		#If the user press Enter, close the window
 		pollingButton.bind("<KeyPress-Return>", lambda event: self._closeSettings())
 		noPollingButton.bind("<KeyPress-Return>", lambda event: self._closeSettings())
 		refreshEntry.bind("<KeyPress-Return>", lambda event: self._closeSettings())
-		self._settingsFrame.mainloop()
+		
 		return
 	
+	def _cancelSettings(self):
+		#Restore the state variables to the previous values
+		self._refreshTimeVar.set(self._RefreshTime)
+		self._pollingVar.set(self._Mode)
+		#Close the window
+		self._settingsFrame.destroy()
+		
 	def _closeSettings(self):
-		print self._pollingVar.get(),str(self._refreshTime.get())
+		#FOR TESTING
+		print self._pollingVar.get(),str(self._refreshTimeVar.get())
+		#Check for negative time
+		if self._refreshTimeVar.get() <= 0:
+			self._refreshTimeVar.set(self._defaultRefreshTime)	
+		#Copy the state variables in the data variables
+		self._RefreshTime = self._refreshTimeVar.get()
+		self._Mode = self._pollingVar.get()
+		#Close the window
 		self._settingsFrame.destroy()
 	
 	def _links(self):
