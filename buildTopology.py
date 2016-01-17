@@ -2,6 +2,7 @@ import subprocess
 #import ipaddress
 import re
 import pprint
+import telnetlib
 
 
 def decodeTopology(output):
@@ -43,7 +44,13 @@ def decodeTopology(output):
         if(len(rows[i]) == 0):
             #empty line found
             break
-        listIP.append(rule3.search(rows[i]).group())
+        #If it finds an IPv4 address
+        if rule3.search(rows[i]) != None:
+            #Insert it in the listIP
+       	    listIP.append(rule3.search(rows[i]).group())
+       	#Otherwise, it means that the list of router ip addresses is finished
+       	else:
+       	    break
     #print(listIP)
 
     return listIP
@@ -69,8 +76,10 @@ def buildTopologyMatrix(interfaces):
     for i in interfaces:
         listInfo.append({})
         listInfo[len(listInfo) - 1]['routerId'] = i
-        cmd = 'vtysh -c "show ip ospf database router ' + i + '"'
-        output = subprocess.check_output(cmd, shell=True)
+        #cmd = 'vtysh -c "show ip ospf database router ' + i + '"'
+        #output = subprocess.check_output(cmd, shell=True)
+        cmd = 'show ip ospf database router ' + i + '\n'
+        output = telnetRouter('192.168.3.1', cmd)
         rows = output.split('\n')
         #pprint.pprint(rows)
 
@@ -97,11 +106,18 @@ def buildTopologyMatrix(interfaces):
             topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
     return listInfo, topologyMatrix
 
+def telnetRouter(ipaddr, cmd):
+	tn = telnetlib.Telnet(ipaddr)
+	tn.write(cmd)
+	output = tn.read_until('>')
+	output = tn.read_until('>')
+	tn.close
+	return output
 
 def getTopology():
     #output of the command
-    output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
-
+    #output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
+    output = telnetRouter('192.168.3.1', 'show ip ospf database\n')
     #return the ip list of the routers
     interfaces = decodeTopology(output)
 
