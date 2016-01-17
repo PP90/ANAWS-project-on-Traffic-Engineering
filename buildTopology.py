@@ -86,8 +86,16 @@ def buildTopologyMatrix(interfaces):
         #find OSPF link
         counter = 0
         for row in range(0, len(rows)):
+            #If it is a Transit Network: read the designated router and the incoming interface
             if(re.search('Link connected to: a Transit Network', rows[row]) is not None):
                 if(re.search('\(Link ID\) Designated Router address:', rows[row + 1]) is not None):
+                    listInfo[len(listInfo) - 1][str(counter) + '_draddress'] = ruleIP.search(rows[row + 1]).group()
+                if(re.search('\(Link Data\) Router Interface address:', rows[row + 2]) is not None):
+                    listInfo[len(listInfo) - 1][str(counter) + '_ip'] = ruleIP.search(rows[row + 2]).group()
+                counter = counter + 1
+            #Otherwise checks if it is a point-to-point link
+            elif(re.search('Link connected to: another Router (point-to-point)', rows[row]) is not None):
+                if(re.search('\(Link ID\) Neighboring Router ID:', rows[row + 1]) is not None):
                     listInfo[len(listInfo) - 1][str(counter) + '_draddress'] = ruleIP.search(rows[row + 1]).group()
                 if(re.search('\(Link Data\) Router Interface address:', rows[row + 2]) is not None):
                     listInfo[len(listInfo) - 1][str(counter) + '_ip'] = ruleIP.search(rows[row + 2]).group()
