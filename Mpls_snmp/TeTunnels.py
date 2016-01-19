@@ -156,6 +156,7 @@ class TeTunnels(object):
 			addrPrefix =  self._getValueFromResponse(responsePrefix)
 			if singleHop == None or addrPrefix == None:
 				continue
+			#TODO: what if in case of IPv6 addresses?
 			hops.append(str(IPv4Address(int(singleHop,0))) + '/' + str(addrPrefix))
 			addrType =  self._getValueFromResponse(responseAddrType)
 		return hops
