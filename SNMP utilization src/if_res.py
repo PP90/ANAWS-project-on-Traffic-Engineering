@@ -5,6 +5,7 @@ class if_res:
 	id_if=-1##Id interface
 	name=""##Name of interface
 	speed=-1##speed of interface
+	ipAddress	#Ipv4 or IPv6 interface address
 
 	old_ifInBytes=0 ##old values of in and output bytes
 	old_ifOutBytes=0
@@ -15,21 +16,29 @@ class if_res:
 	in_utilization=0
 	out_utilization=0
 
-	def __init__(self, id_if, name, speed):
+	def __init__(self, id_if, name, speed, ipAddress=None):
 		self.id_if=id_if
 		self.name=name
 		self.speed=speed
+		self.ipAddress = ipAddress
 
 	#to print function
 	def display_info(self):
-		print 'ID:', self.id_if, 'Interface: ', self.name, ' Speed: ', self.speed, ' bit\sec', 'IN bytes: ', self.old_ifInBytes, 'OUT bytes: ', self.old_ifOutBytes
-	def set_id_if(self):
+		print 'ID:', self.id_if, 'Interface: ', self.name, ' Speed: ', self.speed, ' bit\sec', 'IN bytes: ', self.old_ifInBytes, 'OUT bytes: ', self.old_ifOutBytes, ' IP address: ', self.ipAddress
+		
+	def	set_address_if(self, address):
+		self.ipAddress = address
+	
+	def	get_address_if(self, address):
+		return self.ipAddress
+	
+	def set_id_if(self, id_if):
 		self.id_if=id_if
 
-	def set_name_if(self):
+	def set_name_if(self, name):
 		self.name=name
 
-	def set_name_if(self):
+	def set_speed_if(self, speed):
 		self.speed=speed
 
 	def get_id(self):
