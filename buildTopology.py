@@ -66,7 +66,7 @@ def findDr(draddress, listInfo, originalNode):
     return -1
 
 
-def buildTopologyMatrix(interfaces):
+def buildTopologyMatrix(interfaces, ip):
     listInfo = []
     topologyMatrix = [[0 for x in range(len(interfaces))]
                         for x in range(len(interfaces))]
@@ -79,7 +79,7 @@ def buildTopologyMatrix(interfaces):
         #cmd = 'vtysh -c "show ip ospf database router ' + i + '"'
         #output = subprocess.check_output(cmd, shell=True)
         cmd = 'show ip ospf database router ' + i + '\n'
-        output = telnetRouter('192.168.3.1', cmd)
+        output = telnetRouter(ip, cmd)
         rows = output.split('\n')
         #pprint.pprint(rows)
 
@@ -115,26 +115,26 @@ def buildTopologyMatrix(interfaces):
     return listInfo, topologyMatrix
 
 def telnetRouter(ipaddr, cmd):
-	tn = telnetlib.Telnet(ipaddr)
-	tn.write(cmd)
-	output = tn.read_until('>')
-	output = tn.read_until('>')
-	tn.close
-	return output
+    tn = telnetlib.Telnet(ipaddr)
+    tn.write(cmd)
+    output = tn.read_until('>')
+    output = tn.read_until('>')
+    tn.close
+    return output
 
-def getTopology():
+def getTopology(ip):
     #output of the command
     #output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
-    output = telnetRouter('192.168.3.1', 'show ip ospf database\n')
+    output = telnetRouter(ip, 'show ip ospf database\n')
     #return the ip list of the routers
     interfaces = decodeTopology(output)
 
     #return interface list & matrix topology
-    interfaceList, matrix = buildTopologyMatrix(interfaces)
+    interfaceList, matrix = buildTopologyMatrix(interfaces, ip)
     return interfaceList, matrix
 
 
-lista, matrice = getTopology()
+lista, matrice = getTopology('192.168.3.1')
 print('lista')
 pprint.pprint(lista)
 print('\nmatrice')
