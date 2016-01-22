@@ -5,6 +5,7 @@ from if_res import if_res
 from router import router
 from subprocess import call
 import subprocess
+from pysnmp.entity.rfc3413.oneliner import cmdgen 
 
 debug=0
 
@@ -56,16 +57,15 @@ def get_timeUp_SNMP(router, community_name):
 	timeUp=varBinds[0].prettyPrint().split("= ",1)[1];
 	return timeUp
 
+##HERE. TO MODIFY
 ##Given in input the router address and the number of interfaces of router, the function returns the list of interfaces through SNMP protocol
 def get_ifs_info_SNMP(address, number_if, community_name):
-	id_ifs=[];
 	if_list=[];
 	i=1;#i is the number of interface
 	n=1;#n is used to increment the cycle
 	while(n<=number_if):
 		errorIndication, errorStatus, errorIndex, varBinds = next(
-	    	getCmd(SnmpEngine(),
-        		   CommunityData(community_name, mpModel=0),
+	    	getCmd(SnmpEngine(),CommunityData(community_name, mpModel=0),
         		   UdpTransportTarget((address, 161)),#Address and port
         		   ContextData(),
 			  		ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.5."+`i`)),#IfSpeed (The last number is the interface ID)
@@ -88,13 +88,27 @@ def get_ifs_info_SNMP(address, number_if, community_name):
 			if_speed_int=int(ifSpeed)
 			n=n+1;
 			x= if_res(i,ifName, ifSpeed)
-			id_ifs.append(x)
+			if_list.append(x)
 			
 		except ValueError:
 			if (debug):
 				print 'No interface with ID ',i;
 		i=i+1;
-	return id_ifs
+		
+	
+	errorIndication, errorStatus, errorIndex, \
+	varBindTable = cmdgen.CommandGenerator().bulkCmd(
+            cmdgen.CommunityData('public'), cmdgen.UdpTransportTarget((address, 161)),  
+            0, 25, ("1.3.6.1.2.1.4.20.1.1"))  # ipAddrTable OID 
+	
+	i=0
+	for varBindTableRow in varBindTable: 
+		for var in varBindTableRow:
+			ifAddress=var.prettyPrint().split("= ",1)[1]
+			print i, ifAddress
+			if_list[i].set_address_if(ifAddress)
+			i=i+1
+	return if_list
 
 ##Given in input the router address this function returns the number of interfaces indipendendly either if they are up or down or if they are logical of physical
 
@@ -337,8 +351,8 @@ addresses_list=['192.168.3.1','10.1.1.2']
 address=['192.168.3.1']
 
 
-routers_list=get_routers_list(addresses_list, community_name)
-
+routers_list=get_routers_list(address, community_name)
+routers_list[0].display_info()
 #An object router is obtained through this function. 
 ##What is needed are two parameter: the address of the router and the community name
 r=get_routers_list(address, community_name)##Return a router list giving in input the addresses list
