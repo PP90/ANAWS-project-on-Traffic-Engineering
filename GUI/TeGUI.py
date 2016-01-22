@@ -6,6 +6,7 @@ import netaddr
 import tkMessageBox
 
 class TeGUI(Frame):
+	#TODO: Creare l'oggetto Manager
 	def __init__(self, RefToManager):
 		Frame.__init__(self)
 		#TODO: check for None parameter

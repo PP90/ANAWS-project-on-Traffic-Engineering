@@ -5,7 +5,7 @@ class if_res:
 	id_if=-1##Id interface
 	name=""##Name of interface
 	speed=-1##speed of interface
-	ipAddress	#Ipv4 or IPv6 interface address
+	ipAddress=''	#Ipv4 or IPv6 interface address
 
 	old_ifInBytes=0 ##old values of in and output bytes
 	old_ifOutBytes=0

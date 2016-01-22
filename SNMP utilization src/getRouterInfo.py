@@ -369,7 +369,7 @@ if(polling):
 ##The utilizations are obtained polling periodically all the information from all routers in the routers list.
 ##These parameters are needed: the routers_list, polling_interval and commnunity name.
 ##The routers_list can be obtained using the get_routers_list function.
-polling_periodic=0
+polling_periodic=1
 if(polling_periodic):
 	polling_interval=1##SECONDS
 	get_utilization_polling(routers_list, polling_interval, community_name)
