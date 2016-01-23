@@ -29,7 +29,7 @@ class if_res:
 	def	set_address_if(self, address):
 		self.ipAddress = address
 	
-	def	get_address_if(self, address):
+	def	get_address_if(self):
 		return self.ipAddress
 	
 	def set_id_if(self, id_if):
