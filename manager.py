@@ -10,20 +10,22 @@ import buildTopology
 
 class Manager:
 
-    def __init__(self, anchorIp):
+    def __init__(self, anchorIp, cs):
         #main
         self.anchorIp = anchorIp
+        self.communityString = cs
 
         #topology
         self.topologyMatrix = None
         self.listInfo = None
+
+        #utilization
 
         #tunnel
         #key search are ip
         self.confTunnelsDictionary = {}
         self.lspTableDictionary = {}
 
-        #utilization
 
     ###############TOPOLOGY
     def findTopology(self):
@@ -41,6 +43,16 @@ class Manager:
         return listIp
 
     def getTopology(self):
+
+
+    ###############UTILIZATION
+    def findUtilization():
+
+
+    def getUtilization():
+    def getAllUtilization():
+
+
         """return topology if not present call function to populate data"""
         if self.topologyMatrix is None:
             #unallocated memory call find function
@@ -55,25 +67,25 @@ class Manager:
     #def getAllOccupation():
 
     ###############TUNNEL
-    def findTunnel(ip, communityString):
-        t = TeTunnels(ip, communityString)
-        t.start()
+    #def findTunnel(ip, communityString):
+        #t = TeTunnels(ip, communityString)
+        #t.start()
 
-        self.confTunnelsDictionary[ip] = t.getConfTunnels()
-        self.lspTableDictionary[ip] = t.getLspTable()
+        #self.confTunnelsDictionary[ip] = t.getConfTunnels()
+        #self.lspTableDictionary[ip] = t.getLspTable()
 
-        #For each tunnel configuration:
-        #for name in confTunnels.keys():
-        #    print name, confTunnels[name].getAttributeDict()
+        ##For each tunnel configuration:
+        ##for name in confTunnels.keys():
+        ##    print name, confTunnels[name].getAttributeDict()
 
-        #For each LSP instance
-        #for name in Lsp.keys():
-        #    print name, Lsp[name].getAttributeDict()
+        ##For each LSP instance
+        ##for name in Lsp.keys():
+        ##    print name, Lsp[name].getAttributeDict()
 
-    def getTunnel(ip, communityString):
-        if (self.confTunnelsDictionary.has_key(ip) or self.lspTableDictionary.has_key(ip)) is False:
-            findTunnel(ip, communityString)
-        return self.confTunnelsDictionary[ip], self.lspTableDictionary[ip]
+    #def getTunnel(ip, communityString):
+        #if (self.confTunnelsDictionary.has_key(ip) or self.lspTableDictionary.has_key(ip)) is False:
+            #findTunnel(ip, communityString)
+        #return self.confTunnelsDictionary[ip], self.lspTableDictionary[ip]
 
 
 
