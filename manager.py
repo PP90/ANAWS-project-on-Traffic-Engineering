@@ -1,7 +1,6 @@
 import buildTopology
 
-#from Mpls_snmp.TeTunnels import *
-#from Mpls_snmp.Container import *
+import Mpls_snmp
 #####################################
 #find method are for private use
 #get method are for public call
@@ -46,11 +45,11 @@ class Manager:
 
 
     ###############UTILIZATION
-    def findUtilization():
+    #def findUtilization():
 
 
-    def getUtilization():
-    def getAllUtilization():
+    #def getUtilization():
+    #def getAllUtilization():
 
 
         """return topology if not present call function to populate data"""
