@@ -6,12 +6,12 @@ from if_res import if_res
 class router:
 	hostname="" #Hostname of router
 	address="" #Router address
-	interfaces=[] #Which interfaces it has. The interface is itself an object. An apposite class has been written
+	interfaces = {} #Which interfaces it has. The interface is itself an object. An apposite class has been written
 	old_timeUp=-1
 	new_timeUp=-1		
 
 
-	def __init__(self,hostname="No_name", address='0.0.0.0', interfaces=[]):
+	def __init__(self,hostname="No_name", address='0.0.0.0', interfaces={}):
 		self.hostname=hostname
 		self.address=address
 		self.interfaces=interfaces
@@ -57,7 +57,7 @@ class router:
 		return self.hostname
 
 	def get_interfaces(self):
-		return self.interfaces
+		return list(self.interfaces.values())
 
 	def get_single_interface(self, index):
 		return self.interfaces[index]
