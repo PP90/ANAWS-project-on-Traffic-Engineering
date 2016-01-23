@@ -391,3 +391,5 @@ def main():
 		get_utilization_polling(routers_list, polling_interval, community_name)
 	
 	##print_ifs_info(routers_list[0]) //Function asked for Luigi
+	
+main()
