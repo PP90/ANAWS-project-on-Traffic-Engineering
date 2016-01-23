@@ -134,8 +134,8 @@ def getTopology(ip):
     return interfaceList, matrix
 
 
-lista, matrice = getTopology('192.168.3.1')
-print('lista')
-pprint.pprint(lista)
-print('\nmatrice')
-pprint.pprint(matrice)
+#lista, matrice = getTopology('192.168.3.1')
+#print('lista')
+#pprint.pprint(lista)
+#print('\nmatrice')
+#pprint.pprint(matrice)
