@@ -4,6 +4,9 @@ from GuiUtilities import *
 from ttk import * 
 import netaddr
 import tkMessageBox
+from SNMP_utilization_src import getRouterInfo 
+from SNMP_utilization_src.if_res import *
+from SNMP_utilization_src.router import *
 
 class TeGUI(Frame):
 	#TODO: Creare l'oggetto Manager
@@ -126,7 +129,7 @@ class TeGUI(Frame):
 		#masterFrame = createFrame(self, 2,2,0)
 		#masterFrame.grid()
 		
-		#Create the LabelFrame that will contain the topology image
+		#Create the LabelFrame that will contain the topology information
 		topologyFrame = createFrame(self, 1,1,True, "Text information")
 		topologyFrame.grid(padx = 10, pady = 10, column = 0, row = 0, sticky = W+E+S+N)
 		#Create the LabelFrame that will contain command button
@@ -149,6 +152,9 @@ class TeGUI(Frame):
 		tunnelsButton = Button(commandFrame, text = "Show network topology", command = self._topology)
 		tunnelsButton.grid(padx = 5, column = 0, row = 4) 
 		#TODO: show the network topology in the "topologyFrame"
+		routerList = getRouterInfo.get_routers_list(["1.1.1.1", "2.2.2.2", "3.3.3.3", "4.4.4.4", "5.5.5.5"], "public")
+		tree = createTreeView(topologyFrame, ["Router Name", "IP address","Connected to"], routerList)
+		tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		
 		
 	def _refresh(self):

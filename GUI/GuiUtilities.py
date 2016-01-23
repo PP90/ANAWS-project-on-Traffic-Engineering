@@ -1,7 +1,7 @@
 from Tkinter import *
 import ttk
-from if_res import *
-from router import *
+from SNMP_utilization_src.if_res import *
+from SNMP_utilization_src.router import *
 
 def createFrame(parent, nRows, nCols, labelFrame = False, msg = None):
 	fr = None
@@ -70,7 +70,8 @@ def addRoutersToTree(tree, routerObjList):
 		for interface in interfacesList:
 			IfName = interface.get_name()
 			IfAddress = interface.get_address_if()	
-			print "\tInterface: ", IfName, "IP addr: ", IfAddress
+			ID = interface.get_id()	
+			print "\tInterface: ", IfName, "ID: " ,ID,"IP addr: ", IfAddress
 			#Add the interface node as a child node of its router node
 			tree.insert(name, 'end', name+IfName, text = IfName, values = (IfAddress,""))
 			
