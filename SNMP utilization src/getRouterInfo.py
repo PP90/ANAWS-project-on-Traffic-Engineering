@@ -338,55 +338,52 @@ def get_utilization_router_VFile(router_list):
 		return router
 
 
-
 #######MAIN#############################################
-
-##In some way put the output of buildblablabla file in the addresses list. TODO
-
-
-
-##Addresses list in hard coded way
-community_name='public'
-addresses_list=['192.168.3.1','10.1.1.2']
-address=['192.168.3.1']
+def main():
+	##In some way put the output of buildblablabla file in the addresses list. TODO
 
 
-routers_list=get_routers_list(address, community_name)
-routers_list[0].display_info()
-#An object router is obtained through this function. 
-##What is needed are two parameter: the address of the router and the community name
-r=get_routers_list(address, community_name)##Return a router list giving in input the addresses list
-my_router=router()##Router without information. Used later
+	##Addresses list in hard coded way
+	community_name='public'
+	addresses_list=['192.168.3.1','10.1.1.2']
+	address=['192.168.3.1']
 
-##Example #1 (Utilizations through VFile)
-##The utilizations of interfaces of a single router r are obtained.
-##The utilizations are obtained waiting 2 VFile sent by router r itself.
-#Only the router object needed for this function.
-#It takes at least one minute to see the output results.
-utilization_VFile_once=0
-if(utilization_VFile_once):
-	my_router=get_utilization_router_VFile(r)##Return the router with the utilization by VFiles
-	my_router.print_ifs_utilization()##print the interfaces utilizations of the router
 
-##Example #2(Utilizations through NOT periodic polling)
-##The utilizations of interfaces of a single router r are obtained.
-##The utilizations are obtained polling twice the information from the router.
-##Is necessary polling twice because to compute the utilizations.
-##Needed to parameters : the router object (r) and the community name.
-polling=0
-if(polling):
-	my_router=get_utilization_single_router_polling(r, community_name)##Polling a specific router
-	my_router.print_ifs_utilization()##print the interfaces utilizations of the router
+	routers_list=get_routers_list(address, community_name)
+	routers_list[0].display_info()
+	#An object router is obtained through this function. 
+	##What is needed are two parameter: the address of the router and the community name
+	r=get_routers_list(address, community_name)##Return a router list giving in input the addresses list
+	my_router=router()##Router without information. Used later
 
-##Example #3(Utilizations through periodic polling)
-##The utilizations of interfaces of all routers are obtained.
-##The utilizations are obtained polling periodically all the information from all routers in the routers list.
-##These parameters are needed: the routers_list, polling_interval and commnunity name.
-##The routers_list can be obtained using the get_routers_list function.
-polling_periodic=1
-if(polling_periodic):
-	polling_interval=1##SECONDS
-	get_utilization_polling(routers_list, polling_interval, community_name)
+	##Example #1 (Utilizations through VFile)
+	##The utilizations of interfaces of a single router r are obtained.
+	##The utilizations are obtained waiting 2 VFile sent by router r itself.
+	#Only the router object needed for this function.
+	#It takes at least one minute to see the output results.
+	utilization_VFile_once=0
+	if(utilization_VFile_once):
+		my_router=get_utilization_router_VFile(r)##Return the router with the utilization by VFiles
+		my_router.print_ifs_utilization()##print the interfaces utilizations of the router
+
+	##Example #2(Utilizations through NOT periodic polling)
+	##The utilizations of interfaces of a single router r are obtained.
+	##The utilizations are obtained polling twice the information from the router.
+	##Is necessary polling twice because to compute the utilizations.
+	##Needed to parameters : the router object (r) and the community name.
+	polling=0
+	if(polling):
+		my_router=get_utilization_single_router_polling(r, community_name)##Polling a specific router
+		my_router.print_ifs_utilization()##print the interfaces utilizations of the router
+
+	##Example #3(Utilizations through periodic polling)
+	##The utilizations of interfaces of all routers are obtained.
+	##The utilizations are obtained polling periodically all the information from all routers in the routers list.
+	##These parameters are needed: the routers_list, polling_interval and commnunity name.
+	##The routers_list can be obtained using the get_routers_list function.
+	polling_periodic=1
+	if(polling_periodic):
+		polling_interval=1##SECONDS
+		get_utilization_polling(routers_list, polling_interval, community_name)
 	
-##print_ifs_info(routers_list[0]) //Function asked for Luigi
-
+	##print_ifs_info(routers_list[0]) //Function asked for Luigi
