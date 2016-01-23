@@ -95,23 +95,31 @@ def get_ifs_info_SNMP(address, number_if, community_name):
 				print 'No interface with ID ',i;
 		i=i+1;
 		
-	oid = "1.3.6.1.2.1.4.20.1.2"
-	
+	oidIPaddress = "1.3.6.1.2.1.4.20.1.2"
+	oidIPmask = "1.3.6.1.2.1.4.20.1.3"
+	#Ask for the interface id and the subnet mask, the ip address related to that interface is intergated in the response
 	errorIndication, errorStatus, errorIndex, \
 	varBindTable = cmdgen.CommandGenerator().bulkCmd(
-            cmdgen.CommunityData('public'), cmdgen.UdpTransportTarget((address, 161)),  
-            0, 25, oid, lookupMib = False)  # ipAddrTable OID 
+            cmdgen.CommunityData(community_name), cmdgen.UdpTransportTarget((address, 161)),  
+            0, 25, oidIPaddress,oidIPmask, lookupMib = False)    
 	
-	i=0
+	i = 0
 	for varBindTableRow in varBindTable: 
+		interface_ID = 0
 		for var in varBindTableRow:
-			interface_ID = int(var[1])
-			ifAddress = str(var[0][-4:])
 			if (debug):
-				print interface_ID, ifAddress, if_list[interface_ID].get_id()
-			if_list[interface_ID].set_address_if(ifAddress)
-			i=i+1
-			
+				print var
+			if i % 2 == 0:	#Row related to the ip address
+				interface_ID = int(var[1])
+				ifAddress = str(var[0][-4:])
+				if (debug):
+					print interface_ID, ifAddress
+				if_list[interface_ID].set_address_if(ifAddress)
+			else:		#Row related to the subnet mask
+				subnet = var[1].prettyPrint()
+				if_list[interface_ID].set_subnet_if(subnet)
+			i += 1
+	
 	return if_list
 
 ##Given in input the router address this function returns the number of interfaces indipendendly either if they are up or down or if they are logical of physical
@@ -392,4 +400,3 @@ def main():
 	
 	##print_ifs_info(routers_list[0]) //Function asked for Luigi
 	
-main()

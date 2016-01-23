@@ -6,6 +6,7 @@ class if_res:
 	name=""##Name of interface
 	speed=-1##speed of interface
 	ipAddress=''	#Ipv4 or IPv6 interface address
+	subnetMask = '' #Subnet mask
 
 	old_ifInBytes=0 ##old values of in and output bytes
 	old_ifOutBytes=0
@@ -26,11 +27,17 @@ class if_res:
 	def display_info(self):
 		print 'ID:', self.id_if, 'Interface: ', self.name, ' Speed: ', self.speed, ' bit\sec', 'IN bytes: ', self.old_ifInBytes, 'OUT bytes: ', self.old_ifOutBytes, ' IP address: ', self.ipAddress
 		
-	def	set_address_if(self, address):
+	def set_address_if(self, address):
 		self.ipAddress = address
 	
-	def	get_address_if(self):
+	def get_address_if(self):
 		return self.ipAddress
+		
+	def set_subnet_if(self, subnet):
+		self.subnetMask = subnet
+		
+	def get_subnet_if(self):
+		return(self.subnetMask)
 	
 	def set_id_if(self, id_if):
 		self.id_if=id_if
