@@ -60,9 +60,9 @@ def get_timeUp_SNMP(router, community_name):
 ##HERE. TO MODIFY
 ##Given in input the router address and the number of interfaces of router, the function returns the list of interfaces through SNMP protocol
 def get_ifs_info_SNMP(address, number_if, community_name):
-	if_list=[];
-	i=1;#i is the number of interface
-	n=1;#n is used to increment the cycle
+	if_list = {}
+	i = 1 #i is the number of interface
+	n = 1 #n is used to increment the cycle
 	while(n<=number_if):
 		errorIndication, errorStatus, errorIndex, varBinds = next(
 	    	getCmd(SnmpEngine(),CommunityData(community_name, mpModel=0),
@@ -88,26 +88,30 @@ def get_ifs_info_SNMP(address, number_if, community_name):
 			if_speed_int=int(ifSpeed)
 			n=n+1;
 			x= if_res(i,ifName, ifSpeed)
-			if_list.append(x)
+			if_list[i] = x
 			
 		except ValueError:
 			if (debug):
 				print 'No interface with ID ',i;
 		i=i+1;
 		
+	oid = "1.3.6.1.2.1.4.20.1.2"
 	
 	errorIndication, errorStatus, errorIndex, \
 	varBindTable = cmdgen.CommandGenerator().bulkCmd(
             cmdgen.CommunityData('public'), cmdgen.UdpTransportTarget((address, 161)),  
-            0, 25, ("1.3.6.1.2.1.4.20.1.1"))  # ipAddrTable OID 
+            0, 25, oid, lookupMib = False)  # ipAddrTable OID 
 	
 	i=0
 	for varBindTableRow in varBindTable: 
 		for var in varBindTableRow:
-			ifAddress=var.prettyPrint().split("= ",1)[1]
-			print i, ifAddress
-			if_list[i].set_address_if(ifAddress)
+			interface_ID = int(var[1])
+			ifAddress = str(var[0][-4:])
+			if (debug):
+				print interface_ID, ifAddress, if_list[interface_ID].get_id()
+			if_list[interface_ID].set_address_if(ifAddress)
 			i=i+1
+			
 	return if_list
 
 ##Given in input the router address this function returns the number of interfaces indipendendly either if they are up or down or if they are logical of physical
