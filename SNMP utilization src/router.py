@@ -21,7 +21,7 @@ class router:
 		print "Hostname: ",self.hostname
 		print "Address: ", self.address
 		print "Time up: ",self.old_timeUp
-		for x in self.interfaces:
+		for x in list(self.interfaces.values()):
 			x.display_info()
 	##A new time up values is set and then is computed the difference between old and new timeUp
 	def get_timeUp_diff(self, timeUp):
@@ -67,13 +67,13 @@ class router:
 
 	def print_ifs_utilization(self):
 		print 'Router', self.hostname
-		for interface in self.interfaces:
+		for interface in list(self.interfaces.values()):
 			print 'The (in, out) utilization  of interface ',interface.get_name(), ' is ', interface.get_in_out_utilization()
 
 	def get_ifs_info(self):
 		name_list=[]
 		speed_list=[]
-		for interface in self.interfaces:
+		for interface in list(self.interfaces.values()):
 			name_list.append(interface.get_name())
 			speed_list.append(interface.get_if_speed())
 		return name_list, speed_list
