@@ -354,16 +354,11 @@ def main():
 	address=['192.168.3.1']
 
 
-	print("\na")
 	routers_list=get_routers_list(address, community_name)
-	print("\nb")
-	#routers_list[0].display_info()
-	pprint.pprint(routers_list)
+	routers_list[0].display_info()
 	#An object router is obtained through this function.
 	##What is needed are two parameter: the address of the router and the community name
-	print("\nc")
 	r=get_routers_list(address, community_name)##Return a router list giving in input the addresses list
-	print("\nd")
 	my_router=router()##Router without information. Used later
 
 	##Example #1 (Utilizations through VFile)
@@ -381,21 +376,21 @@ def main():
 	##The utilizations are obtained polling twice the information from the router.
 	##Is necessary polling twice because to compute the utilizations.
 	##Needed to parameters : the router object (r) and the community name.
-	#polling=0
-	#if(polling):
-		#my_router=get_utilization_single_router_polling(r, community_name)##Polling a specific router
-		#my_router.print_ifs_utilization()##print the interfaces utilizations of the router
+	polling=0
+	if(polling):
+		my_router=get_utilization_single_router_polling(r, community_name)##Polling a specific router
+		my_router.print_ifs_utilization()##print the interfaces utilizations of the router
 
 	##Example #3(Utilizations through periodic polling)
 	##The utilizations of interfaces of all routers are obtained.
 	##The utilizations are obtained polling periodically all the information from all routers in the routers list.
 	##These parameters are needed: the routers_list, polling_interval and commnunity name.
 	##The routers_list can be obtained using the get_routers_list function.
-	#polling_periodic=1
-	#if(polling_periodic):
-		#polling_interval=1##SECONDS
-		#get_utilization_polling(routers_list, polling_interval, community_name)
+	polling_periodic=1
+	if(polling_periodic):
+		polling_interval=1##SECONDS
+		get_utilization_polling(routers_list, polling_interval, community_name)
 	
 	##print_ifs_info(routers_list[0]) //Function asked for Luigi
 	
-main()
+#main()
