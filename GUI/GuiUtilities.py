@@ -1,4 +1,7 @@
 from Tkinter import *
+import ttk
+from if_res import *
+from router import *
 
 def createFrame(parent, nRows, nCols, labelFrame = False, msg = None):
 	fr = None
@@ -37,3 +40,37 @@ def centerWindow(frame, w = 600, h = 400):
 		frame.master.geometry('%dx%d+%d+%d' % (w,h,x,y))
 	except:
 		frame.geometry('%dx%d+%d+%d' % (w,h,x,y))
+		
+def createTreeView(frame, columnsName, routerObjList = None):
+	tree = ttk.Treeview(frame)
+	columnsID = []
+	for colId in range(len(columnsName)-1):
+		columnsID.append(str(colId + 1))
+	columnsID = tuple(columnsID)
+	tree["columns"] = columnsID
+	
+	tree.heading('#0', text = columnsName[0])
+	for colId in columnsID:
+		tree.heading(colId, text = columnsName[int(colId)])
+	
+	if routerObjList != None:
+		addRoutersToTree(tree,routerObjList)
+	
+	return tree
+
+#It expects that there are at least 3 columns: "Router name", "IP address" and "Connected to"
+def addRoutersToTree(tree, routerObjList):
+	for router in routerObjList:
+		name = router.get_hostname()
+		address = router.get_address()
+		print "ROUTER: ", name
+		interfacesList = router.get_interfaces()
+		#Add the router node as a parent node
+		tree.insert("", 'end', name, text = name, values = (address,""))	
+		for interface in interfacesList:
+			IfName = interface.get_name()
+			IfAddress = interface.get_address_if()	
+			print "\tInterface: ", IfName, "IP addr: ", IfAddress
+			#Add the interface node as a child node of its router node
+			tree.insert(name, 'end', name+IfName, text = IfName, values = (IfAddress,""))
+			
