@@ -122,33 +122,32 @@ class TeGUI(Frame):
 	def _createMainWindow(self):
 		centerWindow(self,900, 600)
 		#Set the number of grid columns and rows of the window, we need 2 rows and 2 column
-		setGridWeight(self, 2, 2,[5, 95],[70, 30])
+		setGridWeight(self, 1, 2,[100],[80, 20])
 		#masterFrame = createFrame(self, 2,2,0)
 		#masterFrame.grid()
-		#Set the 1st row with two info strings: router ip address and snmp community string
-		string = "Router IP address: " + self._ipAddress.get() + "\nSNMP Community name: " + self._snmpCommunity.get()
-		routerString = Label (self, text = string)
-		routerString.grid(column = 0, row = 0, sticky = W)
 		
 		#Create the LabelFrame that will contain the topology image
-		topologyFrame = createFrame(self, 1,1,True, "Network topology")
-		topologyFrame.grid(padx = 10, pady = 10, column = 0, row = 1, sticky = W+E+S+N)
+		topologyFrame = createFrame(self, 1,1,True, "Text information")
+		topologyFrame.grid(padx = 10, pady = 10, column = 0, row = 0, sticky = W+E+S+N)
 		#Create the LabelFrame that will contain command button
 		commandFrame = createFrame(self, 5,1,True, "Commands")
-		commandFrame.grid(padx = 10, pady = 10, column = 1, row = 1, sticky = W+E+S+N)
+		commandFrame.grid(padx = 10, pady = 10, column = 1, row = 0, sticky = W+E+S+N)
 		#Fill the command frame with buttons
 		#REFRESH
-		refreshButton = Button(commandFrame, text = "Refresh", command = self._refresh)
+		refreshButton = Button(commandFrame, text = "Refresh current image", command = self._refresh)
 		refreshButton.grid(padx = 5, column = 0, row = 0) 
 		#SET PARAMETERS
 		paramButton = Button(commandFrame, text = "Settings", command = self._settings)
 		paramButton.grid(padx = 5, column = 0, row = 1) 
 		#LINKS UTILIZATIONS
-		linkButton = Button(commandFrame, text = "Links utilization", command = self._links)
+		linkButton = Button(commandFrame, text = "Show links utilization", command = self._links)
 		linkButton.grid(padx = 5, column = 0, row = 2) 
 		#TUNNELS
-		tunnelsButton = Button(commandFrame, text = "TE tunnels", command = self._tunnels)
+		tunnelsButton = Button(commandFrame, text = "Show TE tunnels", command = self._tunnels)
 		tunnelsButton.grid(padx = 5, column = 0, row = 3) 
+		#TOPOLOGY
+		tunnelsButton = Button(commandFrame, text = "Show network topology", command = self._topology)
+		tunnelsButton.grid(padx = 5, column = 0, row = 4) 
 		#TODO: show the network topology in the "topologyFrame"
 		
 		
@@ -217,6 +216,8 @@ class TeGUI(Frame):
 	def _links(self):
 		return
 	def _tunnels(self):
+		return
+	def _topology(self):
 		return
 #FOR TESTING		
 def main():
