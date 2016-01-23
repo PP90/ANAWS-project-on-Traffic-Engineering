@@ -1,15 +1,19 @@
 import buildTopology
 
-from Mpls_snmp.TeTunnels import *
-from Mpls_snmp.Container import *
+#from Mpls_snmp.TeTunnels import *
+#from Mpls_snmp.Container import *
 #####################################
 #find method are for private use
 #get method are for public call
 #####################################
 
+
 class Manager:
 
-    def __init__(self):
+    def __init__(self, anchorIp):
+        #main
+        self.anchorIp = anchorIp
+
         #topology
         self.topologyMatrix = None
         self.listInfo = None
@@ -19,34 +23,36 @@ class Manager:
         self.confTunnelsDictionary = {}
         self.lspTableDictionary = {}
 
-    ###############TOPOLOGY
-    def findTopology():
-        """find topology and save list of routers and matrix"""
-        self.listInfo, self.topologyMatrix = buildTopology.getTopology(ip)
+        #utilization
 
-    def getListIP():
+    ###############TOPOLOGY
+    def findTopology(self):
+        """find topology and save list of routers and matrix"""
+        self.listInfo, self.topologyMatrix = buildTopology.getTopology(self.anchorIp)
+
+    def getListIP(self):
         """return list of ip if not present call function to populate data"""
         listIp = []
         if self.listInfo is None:
             #unallocated memory call find function
             self.findTopology()
-        for i in range(0, len(listInfo)):
+        for i in range(0, len(self.listInfo)):
             listIp.append(self.listInfo[i]['routerId'])
-            return listIp
+        return listIp
 
-    def getTopology(ip):
+    def getTopology(self):
         """return topology if not present call function to populate data"""
         if self.topologyMatrix is None:
             #unallocated memory call find function
-            self.findTopology(ip)
+            self.findTopology()
         return self.topologyMatrix
 
     ###############OCCUPATION
-    def findOccuption(ip):
+    #def findOccuption(ip):
 
-    def getOccupation(ip, interface):
+    #def getOccupation(ip, interface):
 
-    def getAllOccupation():
+    #def getAllOccupation():
 
     ###############TUNNEL
     def findTunnel(ip, communityString):
@@ -72,4 +78,4 @@ class Manager:
 
 
     ###############GRAPH
-    def getGraph():
+    #def getGraph():
