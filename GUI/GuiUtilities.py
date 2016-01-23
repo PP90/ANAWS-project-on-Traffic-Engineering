@@ -48,9 +48,9 @@ def createTreeView(frame, columnsName, routerObjList = None):
 		columnsID.append(str(colId + 1))
 	columnsID = tuple(columnsID)
 	tree["columns"] = columnsID
-	
 	tree.heading('#0', text = columnsName[0])
 	for colId in columnsID:
+		tree.column(colId, width=100)
 		tree.heading(colId, text = columnsName[int(colId)])
 	
 	if routerObjList != None:
@@ -71,7 +71,8 @@ def addRoutersToTree(tree, routerObjList):
 			IfName = interface.get_name()
 			IfAddress = interface.get_address_if()	
 			ID = interface.get_id()	
+			IfSubnetMask = interface.get_subnet_if()
 			print "\tInterface: ", IfName, "ID: " ,ID,"IP addr: ", IfAddress
 			#Add the interface node as a child node of its router node
-			tree.insert(name, 'end', name+IfName, text = IfName, values = (IfAddress,""))
+			tree.insert(name, 'end', name+IfName, text = IfName, values = (IfAddress, IfSubnetMask,""))
 			

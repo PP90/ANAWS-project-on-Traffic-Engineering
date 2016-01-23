@@ -153,7 +153,7 @@ class TeGUI(Frame):
 		tunnelsButton.grid(padx = 5, column = 0, row = 4) 
 		#TODO: show the network topology in the "topologyFrame"
 		routerList = getRouterInfo.get_routers_list(["1.1.1.1", "2.2.2.2", "3.3.3.3", "4.4.4.4", "5.5.5.5"], "public")
-		tree = createTreeView(topologyFrame, ["Router Name", "IP address","Connected to"], routerList)
+		tree = createTreeView(topologyFrame, ["Router Name", "IP address","Subnet mask","Connected to"], routerList)
 		tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		
 		
