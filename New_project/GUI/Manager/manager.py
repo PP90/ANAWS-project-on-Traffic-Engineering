@@ -1,4 +1,5 @@
 import buildTopology
+import re
 from Mpls_snmp import *
 from SNMP_utilization_src import *
 
@@ -32,6 +33,26 @@ class Manager:
             if self.listInfo[k]['routerId'] == addr:
                 return k
         return None
+
+    def returnRouter(self, ip):
+        ruleIP = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
+        temp = ruleIP.search(ip).group()
+
+        #search in listInfo
+        for i in list(self.listInfo):
+            for j in range(0, i['nRoutes']):
+                if i[str(j) + '_ip'] == temp:
+                    return i['routerId']
+
+    def removeDuplicates(self, values):
+        output = []
+        seen = set()
+        for value in values:
+            if value not in seen:
+                output.append(value)
+                seen.add(value)
+        return output
+
 
     ###############TOPOLOGY
     def findTopology(self):
@@ -114,11 +135,25 @@ class Manager:
     def getTunnel(self, ip):
         if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
             self.findTunnel(ip)
-        #return self.confTunnelsDictionary[ip], self.lspTableDictionary[ip]
 
         results = []
-        for name in self.lspTableDictionary[ip].keys():
+        for name in list(self.lspTableDictionary[ip].keys()):
             attributes = self.lspTableDictionary[ip][name].getAttributeDict()
             if attributes['mplsTunnelRole'] == '1':
                 results.append(attributes['Computed Path'])
+
+        #compute router path
+        print(results)
+        print("\n")
+        for i in range(0, len(results)):
+            #add ip as origin
+            results[i].insert(0, ip)
+            #delete last element
+            results[i].pop()
+            for j in range(1, len(results[i])):
+                k = results[i][j]
+                results[i][j] = self.returnRouter(k)
+        #remove duplicates
+        for i in range(0, len(results)):
+            results[i] = self.removeDuplicates(results[i])
         return results
