@@ -1,4 +1,4 @@
-import subprocess
+#import subprocess
 #import ipaddress
 import re
 import pprint
@@ -45,12 +45,12 @@ def decodeTopology(output):
             #empty line found
             break
         #If it finds an IPv4 address
-        if rule3.search(rows[i]) != None:
+        if rule3.search(rows[i]) is not None:
             #Insert it in the listIP
-       	    listIP.append(rule3.search(rows[i]).group())
-       	#Otherwise, it means that the list of router ip addresses is finished
-       	else:
-       	    break
+            listIP.append(rule3.search(rows[i]).group())
+        #Otherwise, it means that the list of router ip addresses is finished
+        else:
+            break
     #print(listIP)
 
     return listIP
@@ -60,16 +60,17 @@ def findDr(draddress, listInfo, originalNode):
     for i in range(0, len(listInfo)):
         routes = listInfo[i]['nRoutes']
         for j in range(0, routes):
-        	if (str(j) + '_draddress') in listInfo[i].keys():
-            		if(listInfo[i][str(j) + '_draddress'] == draddress):
-                		if(i != originalNode):
-                    			return i
+            if (str(j) + '_draddress') in list(listInfo[i].keys()):
+                if(listInfo[i][str(j) + '_draddress'] == draddress):
+                    if(i != originalNode):
+                        return i
     return -1
+
 
 def findNextHop(nextHopAddr, listInfo):
     for i in range(0, len(listInfo)):
-   	if(listInfo[i]['routerId'] == nextHopAddr):
-   		return i
+        if(listInfo[i]['routerId'] == nextHopAddr):
+            return i
     return -1
 
 
@@ -108,28 +109,28 @@ def buildTopologyMatrix(interfaces, ip):
                     listInfo[len(listInfo) - 1][str(counter) + '_ip'] = ruleIP.search(rows[row + 2]).group()
                 counter = counter + 1
         listInfo[len(listInfo) - 1]['nRoutes'] = counter
-    pprint.pprint(listInfo)
+    #pprint.pprint(listInfo)
 
     #build matrix
     for i in range(0, len(listInfo)):
         routes = listInfo[i]['nRoutes']
         for j in range(0, routes):
             #Looking for the designated router position in the matrix
-            if (str(j) + '_draddress') in listInfo[i].keys():
-           	draddress = listInfo[i][str(j) + '_draddress']
-           	k = findDr(draddress, listInfo, i)
-            	if(k < 0):
-                	print "ERROR:", draddress, i
-           	else:
-            		topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
+            if (str(j) + '_draddress') in list(listInfo[i].keys()):
+                draddress = listInfo[i][str(j) + '_draddress']
+                k = findDr(draddress, listInfo, i)
+                if(k < 0):
+                    print("ERROR:", draddress, i)
+                else:
+                    topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
             else:
-            	nexthopaddr = listInfo[i][str(j) + '_nexthopaddr']
-            	k = findNextHop(nexthopaddr, listInfo)
-            	if(k < 0):
-                	print "ERROR:", draddress, i
-           	else:
-            		topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
-            	
+                nexthopaddr = listInfo[i][str(j) + '_nexthopaddr']
+                k = findNextHop(nexthopaddr, listInfo)
+                if(k < 0):
+                    print("ERROR:", draddress, i)
+                else:
+                    topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
+
     return listInfo, topologyMatrix
 
 def telnetRouter(ipaddr, cmd):
