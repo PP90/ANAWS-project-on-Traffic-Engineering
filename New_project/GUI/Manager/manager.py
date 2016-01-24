@@ -143,8 +143,6 @@ class Manager:
                 results.append(attributes['Computed Path'])
 
         #compute router path
-        print(results)
-        print("\n")
         for i in range(0, len(results)):
             #add ip as origin
             results[i].insert(0, ip)
