@@ -1,5 +1,5 @@
 import buildTopology
-#import Mpls_snmp
+from Mpls_snmp import *
 from SNMP_utilization_src import *
 
 #####################################
@@ -25,6 +25,13 @@ class Manager:
         #key search are ip
         self.confTunnelsDictionary = {}
         self.lspTableDictionary = {}
+
+    ###############UTILITY
+    def returnIndex(self, addr):
+        for k in range(0, len(self.listInfo)):
+            if self.listInfo[k]['routerId'] == addr:
+                return k
+        return None
 
 
     ###############TOPOLOGY
@@ -52,13 +59,10 @@ class Manager:
     ###############UTILIZATION
     def findUtilization(self, addr):
         """if the output is None some error occurred"""
-        index = None
-        for k in range(0, len(self.listInfo)):
-            if self.listInfo[k]['routerId'] == addr:
-                index = k
+        index = self.returnIndex(addr)
         if index is None:
             return None
-        #print(index)
+
         a = []
         a.append(addr)
         r = getRouterInfo.get_routers_list(a, self.communityString)
@@ -74,16 +78,29 @@ class Manager:
                     self.listInfo[index][str(j) + '_speed'] = ifs[i].get_if_speed()
                     self.listInfo[index][str(j) + '_utilization'] = ifs[i].get_in_out_utilization()
 
+    def getUtilization(self, addr):
+        """return utilization for the current ip if return None some error occurred"""
+        if self.listInfo is None:
+            self.findTopology()
+            res = self.findUtilization(addr)
+            if res is None:
+                return None
 
+        index = self.returnIndex(addr)
+        if index is None:
+            return None
 
-
-    #def getUtilization():
+        if ('0_name') not in list(listInfo[index].keys()):
+            #it's only needed to test if one name is present
+            res = self.findUtilization(addr)
+            if res is None:
+                return None
+        #return utilization list
     #def getAllUtilization():
 
-
     ###############TUNNEL
-    #def findTunnel(ip, communityString):
-        #t = TeTunnels(ip, communityString)
+    #def findTunnel(self, ip):
+        #t = TeTunnels.TeTunnels(ip, self.communityString)
         #t.start()
 
         #self.confTunnelsDictionary[ip] = t.getConfTunnels()
@@ -98,7 +115,7 @@ class Manager:
         ##    print name, Lsp[name].getAttributeDict()
 
     #def getTunnel(ip, communityString):
-        #if (self.confTunnelsDictionary.has_key(ip) or self.lspTableDictionary.has_key(ip)) is False:
+        #if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
             #findTunnel(ip, communityString)
         #return self.confTunnelsDictionary[ip], self.lspTableDictionary[ip]
 
