@@ -33,7 +33,6 @@ class Manager:
                 return k
         return None
 
-
     ###############TOPOLOGY
     def findTopology(self):
         """find topology and save list of routers and matrix"""
@@ -77,6 +76,8 @@ class Manager:
                     self.listInfo[index][str(j) + '_id'] = ifs[i].get_id()
                     self.listInfo[index][str(j) + '_speed'] = ifs[i].get_if_speed()
                     self.listInfo[index][str(j) + '_utilization'] = ifs[i].get_in_out_utilization()
+        #no statefull meaning only to have an output different from None
+        return 1
 
     def getUtilization(self, addr):
         """return utilization for the current ip if return None some error occurred"""
@@ -90,36 +91,34 @@ class Manager:
         if index is None:
             return None
 
-        if ('0_name') not in list(listInfo[index].keys()):
+        if ('0_name') not in list(self.listInfo[index].keys()):
             #it's only needed to test if one name is present
             res = self.findUtilization(addr)
             if res is None:
                 return None
-        #return utilization list
+
+        return self.listInfo[index]
     #def getAllUtilization():
 
     ###############TUNNEL
-    #def findTunnel(self, ip):
-        #t = TeTunnels.TeTunnels(ip, self.communityString)
-        #t.start()
+    def findTunnel(self, ip):
+        t = TeTunnels.TeTunnels(ip, self.communityString)
+        t.start()
 
-        #self.confTunnelsDictionary[ip] = t.getConfTunnels()
-        #self.lspTableDictionary[ip] = t.getLspTable()
+        self.confTunnelsDictionary[ip] = t.getConfTunnels()
+        self.lspTableDictionary[ip] = t.getLspTable()
 
-        ##For each tunnel configuration:
-        ##for name in confTunnels.keys():
-        ##    print name, confTunnels[name].getAttributeDict()
+        #for name in confTunnels.keys():
+            #print name, confTunnels[name].getAttributeDict()
 
-        ##For each LSP instance
-        ##for name in Lsp.keys():
-        ##    print name, Lsp[name].getAttributeDict()
-
-    #def getTunnel(ip, communityString):
-        #if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
-            #findTunnel(ip, communityString)
+    def getTunnel(self, ip):
+        if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
+            self.findTunnel(ip)
         #return self.confTunnelsDictionary[ip], self.lspTableDictionary[ip]
 
-
-
-    ###############GRAPH
-    #def getGraph():
+        results = []
+        for name in self.lspTableDictionary[ip].keys():
+            attributes = self.lspTableDictionary[ip][name].getAttributeDict()
+            if attributes['mplsTunnelRole'] == '1':
+                results.append(attributes['Computed Path'])
+        return results
