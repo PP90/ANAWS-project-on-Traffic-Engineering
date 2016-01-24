@@ -60,9 +60,16 @@ def findDr(draddress, listInfo, originalNode):
     for i in range(0, len(listInfo)):
         routes = listInfo[i]['nRoutes']
         for j in range(0, routes):
-            if(listInfo[i][str(j) + '_draddress'] == draddress):
-                if(i != originalNode):
-                    return i
+        	if (str(j) + '_draddress') in listInfo[i].keys():
+            		if(listInfo[i][str(j) + '_draddress'] == draddress):
+                		if(i != originalNode):
+                    			return i
+    return -1
+
+def findNextHop(nextHopAddr, listInfo):
+    for i in range(0, len(listInfo)):
+   	if(listInfo[i]['routerId'] == nextHopAddr):
+   		return i
     return -1
 
 
@@ -96,7 +103,7 @@ def buildTopologyMatrix(interfaces, ip):
             #Otherwise checks if it is a point-to-point link
             elif(re.search('Link connected to: another Router \(point-to-point\)', rows[row]) is not None):
                 if(re.search('\(Link ID\) Neighboring Router ID:', rows[row + 1]) is not None):
-                    listInfo[len(listInfo) - 1][str(counter) + '_draddress'] = ruleIP.search(rows[row + 1]).group()
+                    listInfo[len(listInfo) - 1][str(counter) + '_nexthopaddr'] = ruleIP.search(rows[row + 1]).group()
                 if(re.search('\(Link Data\) Router Interface address:', rows[row + 2]) is not None):
                     listInfo[len(listInfo) - 1][str(counter) + '_ip'] = ruleIP.search(rows[row + 2]).group()
                 counter = counter + 1
@@ -107,12 +114,22 @@ def buildTopologyMatrix(interfaces, ip):
     for i in range(0, len(listInfo)):
         routes = listInfo[i]['nRoutes']
         for j in range(0, routes):
-            draddress = listInfo[i][str(j) + '_draddress']
-            k = findDr(draddress, listInfo, i)
-            if(k < 0):
-                print "ERROR:", draddress, i
+            #Looking for the designated router position in the matrix
+            if (str(j) + '_draddress') in listInfo[i].keys():
+           	draddress = listInfo[i][str(j) + '_draddress']
+           	k = findDr(draddress, listInfo, i)
+            	if(k < 0):
+                	print "ERROR:", draddress, i
+           	else:
+            		topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
             else:
-            	topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
+            	nexthopaddr = listInfo[i][str(j) + '_nexthopaddr']
+            	k = findNextHop(nexthopaddr, listInfo)
+            	if(k < 0):
+                	print "ERROR:", draddress, i
+           	else:
+            		topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
+            	
     return listInfo, topologyMatrix
 
 def telnetRouter(ipaddr, cmd):
