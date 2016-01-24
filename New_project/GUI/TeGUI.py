@@ -26,6 +26,10 @@ class TeGUI(Frame):
 		#Default refresh time = 1 second
 		self._defaultRefreshTime = 1
 		self._refreshTimeVar.set(self._defaultRefreshTime)
+		#The tree-view that is shown inside the main window
+		self._tree = None
+		#State variable that specifies which kind of information is currently shown in the main window ("Topology", "Utilizations", "Tunnels")
+		self._currentView = ''
 		#Start the GUI
 		self._startGUI()
 	
@@ -131,14 +135,14 @@ class TeGUI(Frame):
 		#masterFrame.grid()
 		
 		#Create the LabelFrame that will contain the topology information
-		topologyFrame = createFrame(self, 1,1,True, "Text information")
-		topologyFrame.grid(padx = 10, pady = 10, column = 0, row = 0, sticky = W+E+S+N)
+		self.infoFrame = createFrame(self, 1,1,True, "Text information")
+		self.infoFrame.grid(padx = 10, pady = 10, column = 0, row = 0, sticky = W+E+S+N)
 		#Create the LabelFrame that will contain command button
 		commandFrame = createFrame(self, 5,1,True, "Commands")
 		commandFrame.grid(padx = 10, pady = 10, column = 1, row = 0, sticky = W+E+S+N)
 		#Fill the command frame with buttons
 		#REFRESH
-		refreshButton = Button(commandFrame, text = "Refresh current image", command = self._refresh)
+		refreshButton = Button(commandFrame, text = "Refresh information", command = self._refresh)
 		refreshButton.grid(padx = 5, column = 0, row = 0) 
 		#SET PARAMETERS
 		paramButton = Button(commandFrame, text = "Settings", command = self._settings)
@@ -153,20 +157,34 @@ class TeGUI(Frame):
 		tunnelsButton = Button(commandFrame, text = "Show network topology", command = self._topology)
 		tunnelsButton.grid(padx = 5, column = 0, row = 4) 
 		
+		#Show the topology information (This process can take a while)
+		self._printTopologyInfo()
+	
+	def _printTopologyInfo(self):
+		if self._tree is not None:
+			self._tree.destroy()		
 		#Obtain the network topology
 		self._routerAddrList = self._RefToManage.getListIP()
 		self._topologyMatrix = self._RefToManage.getTopology()
 		
 		#print self._routerAddrList[]
 		routerList = getRouterInfo.get_routers_list(self._routerAddrList, self._snmpCommunity.get())
-		tree = createTreeView(topologyFrame, ["Router Name", "IP address","Subnet mask","Connected to"], routerList, self._topologyMatrix)
-		tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
-		
+		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], routerList, self._topologyMatrix)
+		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
+		self._currentView = 'Topology'
+	
+	def _printUtilizationInfo(self):
+		return
 		
 	def _refresh(self):
-		#TODO: call the right manager's function with correct parameters 
-		#RefToManager.getGraph()
-		return
+		#It must check the state variable in order to understand which function has to call
+		if self._currentView == 'Topology':
+			self._printTopologyInfo()
+		elif self._currentView == 'Utilizations':
+			self._printUtilizationInfo()
+			return
+		else:
+			return
 	def _settings(self):
 		#It creates a new little window where there will be the settable parameters
 		self._settingsFrame = Toplevel(self)
