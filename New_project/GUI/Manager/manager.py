@@ -53,6 +53,12 @@ class Manager:
                 seen.add(value)
         return output
 
+    def returnNameIndex(self, index, name):
+        for i in range(0, self.listInfo[index]['nRoutes']):
+            if name == self.listInfo[index][str(i) + '_name']:
+                return i
+        return None
+
 
     ###############TOPOLOGY
     def findTopology(self):
@@ -102,11 +108,15 @@ class Manager:
                     self.listInfo[index][str(j) + '_speed'] = ifs[i].get_if_speed()
                     self.listInfo[index][str(j) + '_utilization'] = ifs[i].get_in_out_utilization()
 
-        #my_router = router.router()
-        print("\na")
         my_router = getRouterInfo.get_utilization_single_router_polling(r, self.communityString)
-        print("\nb")
-        my_router.print_ifs_utilization()
+        #my_router.print_ifs_utilization()
+        for interface in my_router.get_interfaces():
+            i = self.returnNameIndex(index, interface.get_name())
+            if i is not None:
+                self.listInfo[index][str(i) + '_utilization'] = interface.get_in_out_utilization()
+            #else:
+                #interface not in ospf
+
         #no statefull meaning only to have an output different from None
         return 1
 
