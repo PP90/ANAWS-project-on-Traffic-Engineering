@@ -15,13 +15,18 @@ pprint.pprint(a)
 #print("\n\n listInfo")
 #pprint.pprint(a)
 
-#a = m1.getUtilization("1.1.1.1")
-#print("\n\n result")
-#pprint.pprint(a)
+a = m1.getUtilization("1.1.1.1")
+print("\n\n result")
+pprint.pprint(a)
+
 #a = m1.listInfo
 #print("\n\n listInfo")
 #pprint.pprint(a)
 
-t = m1.getTunnel("1.1.1.1")
-print("\n Tunnels")
-print(t)
+#a = m1.getRoutersList(["1.1.1.1"])
+#print("\n\n getRoutersList")
+#pprint.pprint(a)
+
+#t = m1.getTunnel("1.1.1.1")
+#print("\n Tunnels")
+#print(t)

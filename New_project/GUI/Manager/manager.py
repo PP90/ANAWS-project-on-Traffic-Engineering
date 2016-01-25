@@ -101,6 +101,12 @@ class Manager:
                     self.listInfo[index][str(j) + '_id'] = ifs[i].get_id()
                     self.listInfo[index][str(j) + '_speed'] = ifs[i].get_if_speed()
                     self.listInfo[index][str(j) + '_utilization'] = ifs[i].get_in_out_utilization()
+
+        #my_router = router.router()
+        print("\na")
+        my_router = getRouterInfo.get_utilization_single_router_polling(r, self.communityString)
+        print("\nb")
+        my_router.print_ifs_utilization()
         #no statefull meaning only to have an output different from None
         return 1
 
