@@ -132,7 +132,7 @@ class TeGUI(Frame):
 		
 	
 	def _createMainWindow(self):
-		centerWindow(self,900, 600)
+		centerWindow(self,1000, 700)
 		#Set the number of grid columns and rows of the window, we need 2 rows and 2 column
 		setGridWeight(self, 1, 2,[100],[80, 20])
 		#masterFrame = createFrame(self, 2,2,0)
@@ -175,10 +175,19 @@ class TeGUI(Frame):
 		
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
-		self._currentView = 'Topology'
+		
 	
 	def _printUtilizationInfo(self):
-		return
+		#Obtain all utilization from each router
+		response = {}
+		"""for router in self._routerList:
+			ipAddr = router.get_address()			
+	 		response[router.get_hostname()] = self._RefToManage.getUtilization(ipAddr)"""
+	 	router = self._routerList[1]
+	 	self._RefToManage.findUtilization("2.2.2.2")
+	 	response[router.get_hostname()] = self._RefToManage.getUtilization("2.2.2.2")
+		self._tree = utilizTreeView(self._tree, ["Router Name", "Speed","Utilization %","Connected to"], response)
+		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		
 	def _refresh(self):
 		#It must check the state variable in order to understand which function has to call
@@ -260,7 +269,8 @@ class TeGUI(Frame):
 		self._settingsFrame.destroy()
 	
 	def _links(self):
-		return
+		self._currentView = 'Utilizations'
+		self._printUtilizationInfo()
 	def _tunnels(self):
 		return
 	def _topology(self):

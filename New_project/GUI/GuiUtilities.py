@@ -96,7 +96,29 @@ def addRoutersToTree(tree, routerObjList, topologyMatrix = None, allInterfaces =
 					nextHopRouterList.append(nextHopRouter)
 				
 			#Add the interface node as a child node of its router node
-			tree.insert(name, 'end', name+IfName, text = IfName, values = (IfAddress, IfSubnetMask,nextHopRouter))
+			tree.insert(name, 'end', name+'_'+IfName, text = IfName, values = (IfAddress, IfSubnetMask,nextHopRouter))
 		#For this router set the list of other attached routers
 		tree.set(name, tree["columns"][-1], ', '.join(nextHopRouterList))
 		i += 1
+		
+def utilizTreeView(tree, columnsName, utilizations):
+	columnsID = tree["columns"]
+	for colId in columnsID:
+		tree.heading(colId, text = columnsName[int(colId)])
+	for router in utilizations.keys():
+		tree.set(router, tree["columns"][-3], '')
+		utilizVect = utilizations[router]
+		listOfChildren = tree.get_children(router)
+		for interfID in listOfChildren:
+			interface = interfID.split('_')[1]
+			if interface in utilizVect.keys():
+				util = utilizVect[interface][0]
+				speed = int(utilizVect[interface][1]) / (1024*1024) #Convertion from bit/s to Mbit/s
+				utilIN = round(float(util[0]), 3)
+				utilOUT = round(float(util[1]), 3)
+				utilString = 'IN: ' + str(utilIN) + '%  ' + 'OUT: ' + str(utilOUT) + '%'
+				tree.set(router+'_'+interface, tree["columns"][-2], utilString)
+				tree.set(router+'_'+interface, tree["columns"][-3], str(speed) + ' Mbit/s')
+			else:
+				tree.delete(interfID)
+	return tree
