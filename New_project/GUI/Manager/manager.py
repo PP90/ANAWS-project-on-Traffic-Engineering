@@ -122,7 +122,12 @@ class Manager:
             if res is None:
                 return None
 
-        return self.listInfo[index]
+        #output is a dictionary {interfaceName : utilization}
+        output = {}
+        for i in range(0, self.listInfo[index]['nRoutes']):
+            output[self.listInfo[index][str(i) + '_name']] = self.listInfo[index][str(i) + '_utilization']
+        return output
+
     #def getAllUtilization():
 
     ###############TUNNEL
