@@ -141,10 +141,13 @@ class Manager:
         #output is a dictionary {interfaceName : utilization}
         output = {}
         for i in range(0, self.listInfo[index]['nRoutes']):
-            output[self.listInfo[index][str(i) + '_name']] = self.listInfo[index][str(i) + '_utilization']
+            output[self.listInfo[index][str(i) + '_name']] = []
+            output[self.listInfo[index][str(i) + '_name']].append(self.listInfo[index][str(i) + '_utilization'])
+            output[self.listInfo[index][str(i) + '_name']].append(self.listInfo[index][str(i) + '_speed'])
         return output
 
     #def getAllUtilization():
+    	
 
     ###############TUNNEL
     def findTunnel(self, ip):
