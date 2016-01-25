@@ -42,7 +42,7 @@ def centerWindow(frame, w = 600, h = 400):
 	except:
 		frame.geometry('%dx%d+%d+%d' % (w,h,x,y))
 		
-def createTreeView(frame, columnsName, routerObjList = None, topologyMatrix = None):
+def createTreeView(frame, columnsName, routerObjList = None, topologyMatrix = None, allInterfaces = 1):
 	tree = ttk.Treeview(frame)
 	columnsID = []
 	for colId in range(len(columnsName)-1):
@@ -55,15 +55,15 @@ def createTreeView(frame, columnsName, routerObjList = None, topologyMatrix = No
 		tree.heading(colId, text = columnsName[int(colId)])
 	
 	if routerObjList != None and topologyMatrix != None:
-		addRoutersToTree(tree,routerObjList, topologyMatrix)
+		addRoutersToTree(tree,routerObjList, topologyMatrix, allInterfaces)
 	
 	elif routerObjList != None:
-		addRoutersToTree(tree,routerObjList)
+		addRoutersToTree(tree,routerObjList, allInterfaces)
 	
 	return tree
 
 #It expects that there are at least 3 columns: "Router name", "IP address" and "Connected to"
-def addRoutersToTree(tree, routerObjList, topologyMatrix = None):
+def addRoutersToTree(tree, routerObjList, topologyMatrix = None, allInterfaces = 1):
 	i = 0
 	for router in routerObjList:
 		nextHopRouterList = []
@@ -79,7 +79,9 @@ def addRoutersToTree(tree, routerObjList, topologyMatrix = None):
 		for interface in interfacesList:
 			nextHopRouter = ''
 			IfName = interface.get_name()
-			IfAddress = interface.get_address_if()	
+			IfAddress = interface.get_address_if()
+			if IfAddress == None and allInterfaces == 0:
+				continue	
 			ID = interface.get_id()	
 			IfSubnetMask = interface.get_subnet_if()
 			#print "\tInterface: ", IfName, "ID: " ,ID,"IP addr: ", IfAddress

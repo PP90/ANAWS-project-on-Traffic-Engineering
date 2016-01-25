@@ -30,6 +30,10 @@ class TeGUI(Frame):
 		self._tree = None
 		#State variable that specifies which kind of information is currently shown in the main window ("Topology", "Utilizations", "Tunnels")
 		self._currentView = ''
+		#State variable that specifies if the user wants to see all the router interface or only those that have an ip address
+		self._allInterfaces = 0
+		self._interfacesVar = IntVar()
+		self._interfacesVar.set(self._allInterfaces)
 		#Start the GUI
 		self._startGUI()
 	
@@ -160,16 +164,16 @@ class TeGUI(Frame):
 		#Show the topology information (This process can take a while)
 		self._printTopologyInfo()
 	
-	def _printTopologyInfo(self):
+	def _printTopologyInfo(self, refresh = True):
 		if self._tree is not None:
-			self._tree.destroy()		
-		#Obtain the network topology
-		self._routerAddrList = self._RefToManage.getListIP()
-		self._topologyMatrix = self._RefToManage.getTopology()
+			self._tree.destroy()
+		if refresh == True:		
+			#Obtain the network topology
+			self._routerAddrList = self._RefToManage.getListIP()
+			self._topologyMatrix = self._RefToManage.getTopology()
+			self._routerList = getRouterInfo.get_routers_list(self._routerAddrList, self._snmpCommunity.get())
 		
-		#print self._routerAddrList[]
-		routerList = getRouterInfo.get_routers_list(self._routerAddrList, self._snmpCommunity.get())
-		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], routerList, self._topologyMatrix)
+		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		self._currentView = 'Topology'
 	
@@ -203,13 +207,18 @@ class TeGUI(Frame):
 		noPollingButton.grid(column = 1, row = 0)
 		
 		#Create the Label Frame for the parameters entries
-		entriesFrame = createFrame(self._settingsFrame, 1, 2, True, "Parameters")
+		entriesFrame = createFrame(self._settingsFrame, 2, 2, True, "Parameters")
 		entriesFrame.grid(padx = 10, pady = 10,column = 0, row = 1, columnspan = 2, sticky = W+E+S+N)
 		#Show the field to set the refresh time
 		refreshLabel = Label (entriesFrame, text = "Refresh time:")
 		refreshLabel.grid(column = 0, row = 0)
 		refreshEntry = Entry(entriesFrame, textvariable = self._refreshTimeVar)
 		refreshEntry.grid(column = 1, row = 0)
+		#Show two radio buttons to let the user decide if he wants to see all the interfaces or not
+		interfaceButton = Radiobutton(entriesFrame, text="Show all interfaces", variable=self._interfacesVar,value=1)
+		noInterfaceButton = Radiobutton(entriesFrame, text="Show only active interfaces", variable=self._interfacesVar, value=0)
+		interfaceButton.grid(column = 0, row = 1)
+		noInterfaceButton.grid(column = 1, row = 1)
 		#Save button
 		saveButton = Button(self._settingsFrame, text = "Save", command = self._closeSettings)
 		saveButton.grid(column = 0, row = 2) 
@@ -228,18 +237,25 @@ class TeGUI(Frame):
 		#Restore the state variables to the previous values
 		self._refreshTimeVar.set(self._RefreshTime)
 		self._pollingVar.set(self._Mode)
+		self._interfacesVar.set(self._allInterfaces)
 		#Close the window
 		self._settingsFrame.destroy()
 		
 	def _closeSettings(self):
 		#FOR TESTING
-		print self._pollingVar.get(),str(self._refreshTimeVar.get())
+		print self._pollingVar.get(),str(self._refreshTimeVar.get()), self._interfacesVar.get()
 		#Check for negative time
 		if self._refreshTimeVar.get() <= 0:
 			self._refreshTimeVar.set(self._defaultRefreshTime)	
 		#Copy the state variables in the data variables
 		self._RefreshTime = self._refreshTimeVar.get()
 		self._Mode = self._pollingVar.get()
+		#If the user has decided to see all or only active interfaces
+		if self._allInterfaces != self._interfacesVar.get():
+			self._allInterfaces = self._interfacesVar.get()
+			self._printTopologyInfo(False)
+		else:
+			self._allInterfaces = self._interfacesVar.get()
 		#Close the window
 		self._settingsFrame.destroy()
 	
