@@ -77,6 +77,10 @@ class Manager:
         return self.topologyMatrix
 
     ###############UTILIZATION
+    def getRoutersList(self, addrList):
+        return getRouterInfo.get_routers_list(addrList, self.communityString)
+
+
     def findUtilization(self, addr):
         """if the output is None some error occurred"""
         index = self.returnIndex(addr)
