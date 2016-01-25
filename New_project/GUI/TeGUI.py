@@ -4,9 +4,9 @@ from GuiUtilities import *
 from ttk import * 
 import netaddr
 import tkMessageBox
-from Manager.SNMP_utilization_src import getRouterInfo 
-from Manager.SNMP_utilization_src.if_res import *
-from Manager.SNMP_utilization_src.router import *
+#from Manager.SNMP_utilization_src import getRouterInfo 
+#from Manager.SNMP_utilization_src.if_res import *
+#from Manager.SNMP_utilization_src.router import *
 from Manager.manager import *
 
 class TeGUI(Frame):
@@ -171,7 +171,7 @@ class TeGUI(Frame):
 			#Obtain the network topology
 			self._routerAddrList = self._RefToManage.getListIP()
 			self._topologyMatrix = self._RefToManage.getTopology()
-			self._routerList = getRouterInfo.get_routers_list(self._routerAddrList, self._snmpCommunity.get())
+			self._routerList = self._RefToManage.getRoutersList(self._routerAddrList)
 		
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
@@ -264,7 +264,8 @@ class TeGUI(Frame):
 	def _tunnels(self):
 		return
 	def _topology(self):
-		return
+		self._printTopologyInfo()
+		self._currentView = 'Topology'
 #FOR TESTING		
 def main():
 	t = TeGUI()
