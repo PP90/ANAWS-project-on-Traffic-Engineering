@@ -40,7 +40,10 @@ class router:
 		self.old_timeUp=old_timeUp
 
 	def set_interfaces(self, interfaces):
-		self.interfaces=interfaces
+		#Since the internal representation is a dictionary with tuple as <InterfaceId, InterfaceObj>
+		#We have to convert the passed list to dictionary
+		for interface in interfaces:
+			self.interfaces[interface.get_id()]=interface
 
 	##A new byte in and out valuesare set and then is compute the difference between old and new in out bytes
 	def get_inout_bytes_diff(self,in_byte, out_byte,index_if):
