@@ -14,11 +14,13 @@ def get_hostname_SNMP(address, community_name):
 	errorIndication, errorStatus, errorIndex, varBinds = next(getCmd(SnmpEngine(),
 	CommunityData(community_name, mpModel=0),UdpTransportTarget((address, 161)),
 	ContextData(),ObjectType(ObjectIdentity("iso.3.6.1.2.1.1.5.0"))))##Host name
+	hostname = ''
 	if errorIndication:
 		print(errorIndication)
 	elif errorStatus:
 		print('%s at %s' % (errorStatus.prettyPrint(),errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
-	hostname=varBinds[0].prettyPrint().split("= ",1)[1];
+	if varBinds != None and len(varBinds) != 0:
+		hostname=varBinds[0].prettyPrint().split("= ",1)[1]
 	return hostname
 
 
@@ -130,13 +132,14 @@ def get_ifs_number_SNMP(address, community_name):
 	UdpTransportTarget((address, 161)),#Address and port
 	ContextData(),ObjectType(ObjectIdentity("1.3.6.1.2.1.2.1.0"))#Ifnumber OID
 	))
-
+	if_number = 0
+	
 	if errorIndication:
   		print(errorIndication)
 	elif errorStatus:
 		print('%s at %s' % (errorStatus.prettyPrint(),errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
-			
-	if_number=varBinds[0].prettyPrint().split("= ",1)[1];
+	if varBinds != None and len(varBinds) != 0:
+		if_number=varBinds[0].prettyPrint().split("= ",1)[1];
 
 	if (debug):	
 		print '#interfaces: ', if_number;
