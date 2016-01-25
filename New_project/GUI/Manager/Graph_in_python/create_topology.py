@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-def draw_graph(graph, matrix_topology, interfaces_names, color_vector, labels=None, graph_layout='spectral', node_size=600, node_color='blue', 			node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6,
+def draw_graph(graph, matrix_topology, interfaces_names, color_vector=None, labels=None, graph_layout='spectral', node_size=600, node_color='blue', 			node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6,
                edge_text_pos=0.25, text_font='sans-serif'):
 
     # create networkx graph
@@ -28,7 +28,11 @@ def draw_graph(graph, matrix_topology, interfaces_names, color_vector, labels=No
 
 	edge_labels=dict(zip(graph, interfaces_names))
 	nx.draw_networkx_nodes(G,graph_pos,node_size=node_size, alpha=node_alpha, node_color=node_color)
-	nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
+
+	if(color_vector!=None):
+		nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
+	else:
+		nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color='#FFFFFF')
 	nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
 	nx.draw_networkx_labels(G, graph_pos, labels, font_size=16)
    	plt.axis('off')
@@ -69,7 +73,7 @@ def get_color_vector(matrix_utilization):
 			if (j>i):
 				element=int(element)
 				index=element/3
-				#print '(i,j)= ','(',i,',',j,')','   ',element
+				print '(i,j)= ','(',i,',',j,')','   ',element
 				if element!=-1:
 					color_vector.append(color_shades[index])
 	return color_vector
