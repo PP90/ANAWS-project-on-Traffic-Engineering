@@ -4,9 +4,7 @@ from GuiUtilities import *
 from ttk import * 
 import netaddr
 import tkMessageBox
-#from Manager.SNMP_utilization_src import getRouterInfo 
-#from Manager.SNMP_utilization_src.if_res import *
-#from Manager.SNMP_utilization_src.router import *
+from Manager.Mpls_snmp.Container import * 
 from Manager.manager import *
 
 class TeGUI(Frame):
@@ -36,6 +34,10 @@ class TeGUI(Frame):
 		self._interfacesVar.set(self._allInterfaces)
 		#Item selected in the tree-view
 		self._itemSelected = ''
+		#List of router address which tunnels are shown in the window
+		self._shownTunnels = []
+		#Tree-view reserved for tunnels
+		self._underTree = None
 		#Start the GUI
 		self._startGUI()
 	
@@ -189,6 +191,50 @@ class TeGUI(Frame):
 		response = self._RefToManage.getAllUtilization(self._routerAddrList, refresh)
 		self._tree = utilizTreeView(self._tree, ["Router Name", "Speed","Utilization %","Connected to"], response)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
+	
+	def _printTunnelsInfo(self):
+		response = {}
+		routerAddr = ''
+		routerObj = None
+		#If the tunnels relative to this router are alreaty shown
+		if self._itemSelected in self._shownTunnels:
+			return
+		
+		#In self._itemSelected there is the name of the selected router, but we need its ip address
+		for router in self._routerList:
+			if router.get_hostname() == self._itemSelected:
+				routerAddr = router.get_address()
+				routerObj = router
+		if routerAddr == '':
+			self.sendAlertMsg("Error: Host name " + self._itemSelected + " not found")
+			return
+			
+		self._shownTunnels.append(self._itemSelected)
+		response = self._RefToManage.getAllTunnels(routerAddr)
+		formattedPaths = self._RefToManage.getTunnel(routerAddr)
+		#Filter the tunnels information
+		for tunnel in response.keys():
+			role = response[tunnel].getAttribute('mplsTunnelRole')
+			if role != '1':
+				response.pop(tunnel) #tunnel that doesn't start from that router->remove this entry
+			else:
+				#Translate the path into a list of router name from a list of routers' ip addresses
+				path = response[tunnel].getAttribute('Computed Path')
+				formattedPath = formattedPaths[tunnel]
+				for hop in formattedPath:
+					for router in self._routerList:
+						if router.get_address() == hop:
+							formattedPath[formattedPath.index(hop)] = router.get_hostname()
+							break
+				response[tunnel].setAttribute('Computed Path',formattedPath)
+		#If the tunnel tree is not already created
+		if self._underTree == None:		
+			self._underTree = createTunnelsTree(self.infoFrame, ["Name", "Source","Destination","Path","Max rate", "Max burst", "Mean rate"] , response, routerObj)
+			setGridWeight(self.infoFrame, 2, 1)
+			self._underTree.grid(padx = 5,pady = 5, column = 0, row = 1, sticky = W+E+S+N) 
+			self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
+		else:
+			addTunnel(self._underTree, response, routerObj)
 		
 	def _refresh(self):
 		#It must check the state variable in order to understand which function has to call
@@ -261,7 +307,7 @@ class TeGUI(Frame):
 		self._RefreshTime = self._refreshTimeVar.get()
 		self._Mode = self._pollingVar.get()
 		#If the user has decided to see all or only active interfaces
-		if self._allInterfaces != self._interfacesVar.get():
+		if self._allInterfaces != self._interfacesVar.get() and self._currentView == 'Topology':
 			self._allInterfaces = self._interfacesVar.get()
 			self._printTopologyInfo(False)
 		else:
@@ -278,11 +324,11 @@ class TeGUI(Frame):
 		if self._itemSelected == '':
 			self.sendAlertMsg("Please select a router in the list")
 			return
-		else:
-			msg = "You have selected router " + self._itemSelected +". Continue?"
-			selectItem(self._tree,self._itemSelected)
-			response = tkMessageBox.askyesno(title = "Retrieve tunnels", message = msg, parent = self)
-			print response
+		msg = "You have selected router " + self._itemSelected +". Continue?"
+		selectItem(self._tree,self._itemSelected)
+		response = tkMessageBox.askyesno(title = "Retrieve tunnels", message = msg, parent = self)
+		self._printTunnelsInfo()
+			
 	def _topology(self):
 		if self._currentView == 'Topology':
 			return

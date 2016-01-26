@@ -30,6 +30,12 @@ class Container(object):
 			return None
 		return self._info[attrName]
 		
+	def setAttribute(self, attrName, value):
+		if attrName not in self._info.keys():
+			return None
+		self._info[attrName] = value
+		return self._info[attrName]
+		
 	"""This function returns the entire dictionary of attribute"""
 	"""The dictionary is structured as follow: {'Attr1' : val1, 'Attr2' : val2, ...}"""
 	def getAttributeDict(self):

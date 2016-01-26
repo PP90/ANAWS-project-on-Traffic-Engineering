@@ -2,6 +2,7 @@ from Tkinter import *
 import ttk
 from Manager.SNMP_utilization_src.if_res import *
 from Manager.SNMP_utilization_src.router import *
+from Manager.Mpls_snmp.Container import * 
 
 
 def createFrame(parent, nRows, nCols, labelFrame = False, msg = None):
@@ -101,6 +102,35 @@ def addRoutersToTree(tree, routerObjList, topologyMatrix = None, allInterfaces =
 		tree.set(name, tree["columns"][-1], ', '.join(nextHopRouterList))
 		i += 1
 		
+def createTunnelsTree(frame, columnsName,response, routerObj):
+	tree = createTreeView(frame, columnsName)
+	tree.column('#0', width=100)
+	
+	addTunnel(tree, response, routerObj,)
+	
+	
+	return tree
+def addTunnel(tree, tunnels, routerObj):
+	#Show the router name as parent of next tunnels information
+	routerName = addRouterName(tree, routerObj)
+	for tunnel in tunnels.keys():
+		tunnelObj =  tunnels[tunnel]
+		Source = tunnelObj.getAttribute('Source')
+		Dest = tunnelObj.getAttribute('Dest')
+		Path = tunnelObj.getAttribute('Computed Path')
+		MaxRate = tunnelObj.getAttribute('mplsTunnelResourceMaxRate')
+		MaxBurst = tunnelObj.getAttribute('mplsTunnelResourceMaxBurstSize')
+		MeanRate = tunnelObj.getAttribute('mplsTunnelResourceMeanRate')
+		#Format the data in a better way
+		#Path = str(Path).replace(' ', '\n')
+		tree.insert(routerName, 'end', routerName+'_'+tunnel, text = tunnel, values = (Source, Dest,Path,MaxRate,MaxBurst,MeanRate))
+		
+def addRouterName(tree, routerObj):
+	routerName = routerObj.get_hostname()
+	#Show the router name as parent of next tunnels information
+	tree.insert("", 'end',routerName, text = routerName)
+	return routerName
+	
 def utilizTreeView(tree, columnsName, utilizations):
 	columnsID = tree["columns"]
 	for colId in columnsID:
