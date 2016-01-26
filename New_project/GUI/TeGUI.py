@@ -177,15 +177,10 @@ class TeGUI(Frame):
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		
 	
-	def _printUtilizationInfo(self):
+	def _printUtilizationInfo(self, refresh = False):
 		#Obtain all utilization from each router
 		response = {}
-		"""for router in self._routerList:
-			ipAddr = router.get_address()			
-	 		response[router.get_hostname()] = self._RefToManage.getUtilization(ipAddr)"""
-	 	router = self._routerList[1]
-	 	self._RefToManage.findUtilization("2.2.2.2")
-	 	response[router.get_hostname()] = self._RefToManage.getUtilization("2.2.2.2")
+		response = self._RefToManage.getAllUtilization(self._routerAddrList, refresh)
 		self._tree = utilizTreeView(self._tree, ["Router Name", "Speed","Utilization %","Connected to"], response)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		
@@ -194,7 +189,7 @@ class TeGUI(Frame):
 		if self._currentView == 'Topology':
 			self._printTopologyInfo()
 		elif self._currentView == 'Utilizations':
-			self._printUtilizationInfo()
+			self._printUtilizationInfo(True)
 			return
 		else:
 			return
@@ -269,11 +264,15 @@ class TeGUI(Frame):
 		self._settingsFrame.destroy()
 	
 	def _links(self):
+		if self._currentView == 'Utilizations':
+			return
 		self._currentView = 'Utilizations'
 		self._printUtilizationInfo()
 	def _tunnels(self):
 		return
 	def _topology(self):
+		if self._currentView == 'Topology':
+			return
 		self._printTopologyInfo()
 		self._currentView = 'Topology'
 #FOR TESTING		
