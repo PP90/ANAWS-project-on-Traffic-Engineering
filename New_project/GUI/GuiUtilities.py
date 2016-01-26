@@ -122,3 +122,11 @@ def utilizTreeView(tree, columnsName, utilizations):
 			else:
 				tree.delete(interfID)
 	return tree
+
+def getItemSelected(tree):
+	selected = tree.focus()
+	splitID = selected.split('_')
+	routerID = splitID[0]
+	return routerID
+def selectItem(tree, ID):
+	tree.selection_set(ID)

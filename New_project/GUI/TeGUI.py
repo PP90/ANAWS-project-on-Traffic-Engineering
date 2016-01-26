@@ -34,6 +34,8 @@ class TeGUI(Frame):
 		self._allInterfaces = 0
 		self._interfacesVar = IntVar()
 		self._interfacesVar.set(self._allInterfaces)
+		#Item selected in the tree-view
+		self._itemSelected = ''
 		#Start the GUI
 		self._startGUI()
 	
@@ -175,7 +177,11 @@ class TeGUI(Frame):
 		
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
-		
+		self._tree.bind('<ButtonRelease-1>', self._selectTreeItem)
+	
+	def _selectTreeItem(self, event):
+		self._itemSelected = getItemSelected(self._tree)
+				
 	
 	def _printUtilizationInfo(self, refresh = False):
 		#Obtain all utilization from each router
@@ -269,7 +275,14 @@ class TeGUI(Frame):
 		self._currentView = 'Utilizations'
 		self._printUtilizationInfo()
 	def _tunnels(self):
-		return
+		if self._itemSelected == '':
+			self.sendAlertMsg("Please select a router in the list")
+			return
+		else:
+			msg = "You have selected router " + self._itemSelected +". Continue?"
+			selectItem(self._tree,self._itemSelected)
+			response = tkMessageBox.askyesno(title = "Retrieve tunnels", message = msg, parent = self)
+			print response
 	def _topology(self):
 		if self._currentView == 'Topology':
 			return
