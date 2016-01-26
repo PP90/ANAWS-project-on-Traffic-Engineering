@@ -188,14 +188,13 @@ class Manager:
         if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
             self.findTunnel(ip)
 
-        results = []
+        results = {}
         for name in list(self.lspTableDictionary[ip].keys()):
             attributes = self.lspTableDictionary[ip][name].getAttributeDict()
             if attributes['mplsTunnelRole'] == '1':
-                results.append(attributes['Computed Path'])
-
+                results[name] = attributes['Computed Path']
         #compute router path
-        for i in range(0, len(results)):
+        for i in results:
             #add ip as origin
             results[i].insert(0, ip)
             #delete last element
@@ -204,7 +203,7 @@ class Manager:
                 k = results[i][j]
                 results[i][j] = self.returnRouter(k)
         #remove duplicates
-        for i in range(0, len(results)):
+        for i in results:
             results[i] = self.removeDuplicates(results[i])
         return results
 
