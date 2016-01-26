@@ -326,8 +326,8 @@ def get_utilization_single_router_polling(single_router, community_name):
 		##The utilization takes into account also the packets get from SNMP
 			format(in_utilization,'.3f')
 			format(out_utilization,'.3f')
-			in_utilization=(float(delta_ifInBytes)*8*100)/(if_speed*(timeUp_diff/100));
-			out_utilization=(float(delta_ifOutBytes)*8*100)/(if_speed*(timeUp_diff/100));
+			in_utilization=(float(delta_ifInBytes)*8*100)/(if_speed*float(timeUp_diff)/100);
+			out_utilization=(float(delta_ifOutBytes)*8*100)/(if_speed*float(timeUp_diff)/100);
 			interface.set_in_out_utilization(in_utilization, out_utilization)
 		n_gets=n_gets+1
 		print '#####',n_gets
