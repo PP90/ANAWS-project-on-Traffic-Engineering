@@ -21,7 +21,7 @@ class Manager:
         self.listInfo = None
 
         #utilization
-
+	self.routersList = None
         #tunnel
         #key search are ip
         self.confTunnelsDictionary = {}
@@ -84,19 +84,30 @@ class Manager:
 
     ###############UTILIZATION
     def getRoutersList(self, addrList):
-        return getRouterInfo.get_routers_list(addrList, self.communityString)
+    	self.routersList = getRouterInfo.get_routers_list(addrList, self.communityString)
+        return self.routersList
 
+    def findRouterObjFromAddr(self, addr):
+    	if self.routersList != None:
+	    	for router in self.routersList:
+			if addr == router.get_address():
+				return router
+	return None
 
     def findUtilization(self, addr):
         """if the output is None some error occurred"""
         index = self.returnIndex(addr)
         if index is None:
             return None
-
-        a = []
-        a.append(addr)
-        r = getRouterInfo.get_routers_list(a, self.communityString)
-        ifs = r[0].get_interfaces()
+	#Avoid to waste time in retrieving information already taken 
+	router = []
+	router.append(self.findRouterObjFromAddr(addr))
+	if router[0] == None:
+		a = []
+        	a.append(addr)
+        	router = self.getRoutersList(a)
+        
+        ifs = router[0].get_interfaces()
         for i in range(0, len(ifs)):
             ip = ifs[i].get_address_if()
             for j in range(0, self.listInfo[index]['nRoutes']):
@@ -108,7 +119,7 @@ class Manager:
                     self.listInfo[index][str(j) + '_speed'] = ifs[i].get_if_speed()
                     self.listInfo[index][str(j) + '_utilization'] = ifs[i].get_in_out_utilization()
 
-        my_router = getRouterInfo.get_utilization_single_router_polling(r, self.communityString)
+        my_router = getRouterInfo.get_utilization_single_router_polling(router, self.communityString)
         #my_router.print_ifs_utilization()
         for interface in my_router.get_interfaces():
             i = self.returnNameIndex(index, interface.get_name())
@@ -146,8 +157,16 @@ class Manager:
             output[self.listInfo[index][str(i) + '_name']].append(self.listInfo[index][str(i) + '_speed'])
         return output
 
-    #def getAllUtilization():
-    	
+    def getAllUtilization(self, addrList, refresh = False):
+    	result = {}
+    	for addr in addrList:
+    		if refresh == True:
+    			self.findUtilization(addr)
+    		output = self.getUtilization(addr)
+    		routerObj = self.findRouterObjFromAddr(addr)
+    		if routerObj != None:
+    			result[routerObj.get_hostname()] = output
+    	return result
 
     ###############TUNNEL
     def findTunnel(self, ip):
