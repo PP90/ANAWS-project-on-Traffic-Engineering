@@ -180,6 +180,11 @@ class Manager:
             #print name, confTunnels[name].getAttributeDict()
 
     def getTunnel(self, ip):
+        """return the list of traversed router"""
+        #this is needed cause we need listInfo
+        if self.listInfo is None:
+            self.findTopology()
+
         if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
             self.findTunnel(ip)
 
@@ -202,3 +207,10 @@ class Manager:
         for i in range(0, len(results)):
             results[i] = self.removeDuplicates(results[i])
         return results
+
+    def getAllTunnels(self, ip):
+        if self.listInfo is None:
+            self.findTopology()
+        if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
+            self.findTunnel(ip)
+        return self.lspTableDictionary[ip]
