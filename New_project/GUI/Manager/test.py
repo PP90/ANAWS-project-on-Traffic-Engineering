@@ -15,7 +15,10 @@ m1 = man.Manager("192.168.3.1", "public")
 #print("\n\n listInfo")
 #pprint.pprint(a)
 
-a = m1.getUtilization("1.1.1.1")
+a = m1.getAllUtilization(["1.1.1.1", "2.2.2.2", "4.4.4.4"])
+print("\n\n result")
+pprint.pprint(a)
+a = m1.getAllUtilization(["1.1.1.1", "2.2.2.2", "4.4.4.4"], True)
 print("\n\n result")
 pprint.pprint(a)
 
