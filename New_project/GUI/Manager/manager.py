@@ -21,7 +21,7 @@ class Manager:
         self.listInfo = None
 
         #utilization
-	self.routersList = None
+        self.routersList = None
         #tunnel
         #key search are ip
         self.confTunnelsDictionary = {}
@@ -59,7 +59,6 @@ class Manager:
                 return i
         return None
 
-
     ###############TOPOLOGY
     def findTopology(self):
         """find topology and save list of routers and matrix"""
@@ -84,29 +83,30 @@ class Manager:
 
     ###############UTILIZATION
     def getRoutersList(self, addrList):
-    	self.routersList = getRouterInfo.get_routers_list(addrList, self.communityString)
+        self.routersList = getRouterInfo.get_routers_list(addrList, self.communityString)
         return self.routersList
 
     def findRouterObjFromAddr(self, addr):
-    	if self.routersList != None:
-	    	for router in self.routersList:
-			if addr == router.get_address():
-				return router
-	return None
+        if self.routersList is not None:
+            for router in self.routersList:
+                if addr == router.get_address():
+                    return router
+        return None
 
     def findUtilization(self, addr):
         """if the output is None some error occurred"""
         index = self.returnIndex(addr)
         if index is None:
             return None
-	#Avoid to waste time in retrieving information already taken 
-	router = []
-	router.append(self.findRouterObjFromAddr(addr))
-	if router[0] == None:
-		a = []
-        	a.append(addr)
-        	router = self.getRoutersList(a)
-        
+
+        #Avoid to waste time in retrieving information already taken
+        router = []
+        router.append(self.findRouterObjFromAddr(addr))
+        if router[0] == None:
+            a = []
+            a.append(addr)
+            router = self.getRoutersList(a)
+
         ifs = router[0].get_interfaces()
         for i in range(0, len(ifs)):
             ip = ifs[i].get_address_if()
@@ -158,15 +158,15 @@ class Manager:
         return output
 
     def getAllUtilization(self, addrList, refresh = False):
-    	result = {}
-    	for addr in addrList:
-    		if refresh == True:
-    			self.findUtilization(addr)
-    		output = self.getUtilization(addr)
-    		routerObj = self.findRouterObjFromAddr(addr)
-    		if routerObj != None:
-    			result[routerObj.get_hostname()] = output
-    	return result
+        result = {}
+        for addr in addrList:
+            if refresh is True:
+                self.findUtilization(addr)
+            output = self.getUtilization(addr)
+            routerObj = self.findRouterObjFromAddr(addr)
+            if routerObj is not None:
+                result[routerObj.get_hostname()] = output
+        return result
 
     ###############TUNNEL
     def findTunnel(self, ip):
