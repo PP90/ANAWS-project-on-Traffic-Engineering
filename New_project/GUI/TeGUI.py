@@ -327,7 +327,8 @@ class TeGUI(Frame):
 		msg = "You have selected router " + self._itemSelected +". Continue?"
 		selectItem(self._tree,self._itemSelected)
 		response = tkMessageBox.askyesno(title = "Retrieve tunnels", message = msg, parent = self)
-		self._printTunnelsInfo()
+		if response == True:
+			self._printTunnelsInfo()
 			
 	def _topology(self):
 		if self._currentView == 'Topology':
