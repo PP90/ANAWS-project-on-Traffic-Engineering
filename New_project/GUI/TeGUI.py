@@ -156,7 +156,7 @@ class TeGUI(Frame):
 		paramButton = Button(commandFrame, text = "Settings", command = self._settings)
 		paramButton.grid(padx = 5, column = 0, row = 1) 
 		#LINKS UTILIZATIONS
-		linkButton = Button(commandFrame, text = "Show links utilization", command = self._links)
+		linkButton = Button(commandFrame, text = "Show link utilization", command = self._links)
 		linkButton.grid(padx = 5, column = 0, row = 2) 
 		#TUNNELS
 		tunnelsButton = Button(commandFrame, text = "Show TE tunnels", command = self._tunnels)
@@ -167,6 +167,7 @@ class TeGUI(Frame):
 		
 		#Show the topology information (This process can take a while)
 		self._printTopologyInfo()
+		self._currentView = 'Topology'
 	
 	def _printTopologyInfo(self, refresh = True):
 		if self._tree is not None:
