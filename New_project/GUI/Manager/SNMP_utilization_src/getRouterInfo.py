@@ -183,8 +183,8 @@ def get_utilization_polling(routers_list, how_much_often, community_name):
 				if(n_rel>1):
 					format(in_utilization,'.3f')
 					format(out_utilization,'.3f')
-					in_utilization=((delta_ifInBytes)*8*100)/(if_speed*(timeUp_diff/100));
-					out_utilization=((delta_ifOutBytes)*8*100)/(if_speed*(timeUp_diff/100));
+					in_utilization=((delta_ifInBytes)*8*100)/(if_speed*(float(timeUp_diff)/100));
+					out_utilization=((delta_ifOutBytes)*8*100)/(if_speed*(float(timeUp_diff)/100));
 				
 				
 				##Some times the shown utilization is bigger than one. This it could be due to buffer o burst packets incoming. In order to avoid this kind of situation, it will be one if it is greater than one. It is correct this line of thinking ?

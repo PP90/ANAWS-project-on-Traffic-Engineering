@@ -122,6 +122,9 @@ def addTunnel(tree, tunnels, routerObj):
 		MaxBurst = tunnelObj.getAttribute('mplsTunnelResourceMaxBurstSize')
 		MeanRate = tunnelObj.getAttribute('mplsTunnelResourceMeanRate')
 		#Format the data in a better way
+		MaxRate = str(round(float(MaxRate) / 1000, 3)) + " Kbit/s"
+		MaxBurst = str(round(float(MaxBurst) / 1000, 3)) + " Kbit/s"
+		MeanRate = str(round(float(MeanRate) / 1000, 3)) + " Kbit/s"
 		#Path = str(Path).replace(' ', '\n')
 		tree.insert(routerName, 'end', routerName+'_'+tunnel, text = tunnel, values = (Source, Dest,Path,MaxRate,MaxBurst,MeanRate))
 		
@@ -143,7 +146,7 @@ def utilizTreeView(tree, columnsName, utilizations):
 			interface = interfID.split('_')[1]
 			if interface in utilizVect.keys():
 				util = utilizVect[interface][0]
-				speed = int(utilizVect[interface][1]) / (1024*1024) #Convertion from bit/s to Mbit/s
+				speed = int(utilizVect[interface][1]) / (1000*1000) #Convertion from bit/s to Mbit/s
 				utilIN = round(float(util[0]), 3)
 				utilOUT = round(float(util[1]), 3)
 				utilString = 'IN: ' + str(utilIN) + '%  ' + 'OUT: ' + str(utilOUT) + '%'
