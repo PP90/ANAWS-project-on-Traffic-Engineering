@@ -1,0 +1,5 @@
+1) Plot grafo topologia
+2) Implementare thread per refresh asincrono temporizzato
+3) Implementare scelta tra quagga e telnet
+4) Trovare un modo per filtrare il router fittizio di quagga dalla lista dei router veri
+5) Documentazione (slide?)
