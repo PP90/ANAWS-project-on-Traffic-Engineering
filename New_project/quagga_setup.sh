@@ -48,16 +48,14 @@ chmod 640 /etc/quagga/zebra.conf
 chmod 640 /etc/quagga/ospfd.conf
 echo "\t done"
 
-# manual configuration of conf files 
-#	Enter /etc/quagga/daemons and set yes for both "zebra" and "ospfd"
-#	Enter /etc/quagga/debian.conf and set the tun0 ip on "zebra_options" and "ospfd_options"
+echo "manual configuration of conf files "
+echo "\tEnter /etc/quagga/daemons and set yes for both \"zebra\" and \"ospfd\""
+echo "\tEnter /etc/quagga/debian.conf and set the tun0 ip on \"zebra_options\" and \"ospfd_options\""
 
-# to run the service 
-#	sudo /etc/init.d/quagga [start, restart, stop]
+echo "to run the service "
+echo "sudo /etc/init.d/quagga [start, restart, stop]"
 
-# to obtain topology
-#	sudo vtysh -c "show ip ospf database"
+echo "to obtain topology"
+echo "\tsudo vtysh -c \"show ip ospf database\""
 
-
-
-
+exit
