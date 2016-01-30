@@ -135,7 +135,7 @@ class TeGUI(Frame):
 			return
 		
 		#Everything should be ok, create the manager object
-		self._RefToManage = Manager(self._ipAddress.get(), self._snmpCommunity.get())
+		self._RefToManage = Manager(self._ipAddress.get(), self._snmpCommunity.get(), self._QuaggaOrTelnet.get())
 		
 		#Clean the window up
 		self._title.grid_forget()
@@ -199,6 +199,7 @@ class TeGUI(Frame):
 			self._routerAddrList = self._RefToManage.getListIP()
 			self._topologyMatrix = self._RefToManage.getTopology()
 			self._routerList = self._RefToManage.getRoutersList(self._routerAddrList)
+			self._routerAddrList.pop(self._routerAddrList.index("192.168.0.100"))
 		
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 

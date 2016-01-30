@@ -74,7 +74,7 @@ def findNextHop(nextHopAddr, listInfo):
     return -1
 
 
-def buildTopologyMatrix(interfaces, ip):
+def buildTopologyMatrix(interfaces, ip, mode):
     listInfo = []
     topologyMatrix = [[0 for x in range(len(interfaces))]
                         for x in range(len(interfaces))]
@@ -87,7 +87,13 @@ def buildTopologyMatrix(interfaces, ip):
         #cmd = 'vtysh -c "show ip ospf database router ' + i + '"'
         #output = subprocess.check_output(cmd, shell=True)
         cmd = 'show ip ospf database router ' + i + '\n'
-        output = telnetRouter(ip, cmd)
+        output = ''
+        if mode == 'T':
+        	cmd = 'show ip ospf database router ' + i + '\n'
+        	output = telnetRouter(ip, cmd)
+        else:
+        	cmd = 'vtysh -c "show ip ospf database router ' + i + '"\n'
+        	output = requestToQuagga(cmd)
         rows = output.split('\n')
         #pprint.pprint(rows)
 
@@ -140,6 +146,10 @@ def telnetRouter(ipaddr, cmd):
     output = tn.read_until('>')
     tn.close
     return output
+    
+def requestToQuagga(cmd):
+	output = subprocess.check_output(cmd, shell=True)
+	return output
 
 def getTopology(ip, mode):
     output = None
@@ -154,7 +164,7 @@ def getTopology(ip, mode):
     interfaces = decodeTopology(output)
 
     #return interface list & matrix topology
-    interfaceList, matrix = buildTopologyMatrix(interfaces, ip)
+    interfaceList, matrix = buildTopologyMatrix(interfaces, ip, mode)
     return interfaceList, matrix
 
 
