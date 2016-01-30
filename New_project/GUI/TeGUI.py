@@ -24,6 +24,9 @@ class TeGUI(Frame):
 		#Default refresh time = 1 second
 		self._defaultRefreshTime = 1
 		self._refreshTimeVar.set(self._defaultRefreshTime)
+		#State variable that specifies if the topology is retrieved through Quagga ('Q') or Telnet ('T')
+		self._QuaggaOrTelnet = StringVar()
+		self._QuaggaOrTelnet.set('T')
 		#The tree-view that is shown inside the main window
 		self._tree = None
 		#State variable that specifies which kind of information is currently shown in the main window ("Topology", "Utilizations", "Tunnels")
@@ -74,28 +77,37 @@ class TeGUI(Frame):
 		self._title.grid(column = 0, row = 0)
             		
 		#Set the LabelFrame that will contain the form
-		self._labelframe = createFrame(self, 3, 2, True)
+		self._labelframe = createFrame(self, 4, 2, True)
 		self._labelframe.grid(padx = 10, pady = 10,row = 1, column= 0,sticky = W+E+N+S)
 		
 		#Set the 1st row 
 		addressLabel = Label (self._labelframe, text = "Router IP address:")
 		addressLabel.grid(column = 0, row = 0, sticky = W+N+S)
 		
-		ipAddressEntry = Entry(self._labelframe, textvariable = self._ipAddress)
-		ipAddressEntry.grid(padx = 5,column = 1, row = 0)
+		self._ipAddressEntry = Entry(self._labelframe, textvariable = self._ipAddress, justify=CENTER)
+		self._ipAddressEntry.grid(padx = 5,column = 1, row = 0)
 		#If the user press "Enter" go to the next window
-		ipAddressEntry.bind("<KeyPress-Return>", lambda event: self._startCmd())
+		self._ipAddressEntry.bind("<KeyPress-Return>", lambda event: self._startCmd())
 		#Set the 2nd row
 		snmpLabel = Label (self._labelframe, text = "SNMP community name:")
 		snmpLabel.grid(column = 0, row = 1, sticky = W+N+S)
 		
-		snmpCommunityEntry = Entry(self._labelframe, textvariable = self._snmpCommunity)
+		snmpCommunityEntry = Entry(self._labelframe, textvariable = self._snmpCommunity, justify=CENTER)
 		snmpCommunityEntry.grid(padx = 5, column = 1, row = 1)
 		#If the user press "Enter" go to the next window
 		snmpCommunityEntry.bind("<KeyPress-Return>", lambda event: self._startCmd())
+		
 		#Set the 3rd row
+		topologyLabel = Label (self._labelframe, text = "Retrieve network topology using:")
+		topologyLabel.grid(column = 0, row = 2, columnspan = 1,sticky = W)
+		telnetButton = Radiobutton(self._labelframe, text="Telnet", variable=self._QuaggaOrTelnet,value='T', command = self._selectQuagga)
+		quaggaButton = Radiobutton(self._labelframe, text="Quagga", variable=self._QuaggaOrTelnet, value='Q', command = self._selectQuagga)
+		telnetButton.grid(column = 1, row = 2, sticky = W, padx = 10)
+		quaggaButton.grid(column = 1, row = 2, sticky = E, padx = 10)
+		
+		#Set the 4rd row
 		startButton = Button(self._labelframe, text = "Start", command = self._startCmd)
-		startButton.grid(padx = 5, column = 1, row = 2) 
+		startButton.grid(padx = 5, column = 1, row = 3) 
 		
 		
 		#create the GUI main loop
@@ -109,12 +121,13 @@ class TeGUI(Frame):
 			alertMsg += "Community name is empty\n"
 		else:
 			self._snmpCommunityName = self._snmpCommunity.get()
-		#Check the router IP address (note that it may be IPv4 or IPv6 address)
-		temp = self._ipAddress.get()
-		try:
-			self._routerIpAddr = netaddr.IPAddress(temp)
-		except netaddr.AddrFormatError:
-			alertMsg += "Router IP address is not valid\n"
+		if self._QuaggaOrTelnet.get() == 'T':
+			#Check the router IP address (note that it may be IPv4 or IPv6 address)
+			temp = self._ipAddress.get()
+			try:
+				self._routerIpAddr = netaddr.IPAddress(temp)
+			except netaddr.AddrFormatError:
+				alertMsg += "Router IP address is not valid\n"
 			
 		#If the alertMsg is not empty it means that something went wrong
 		if alertMsg != "":
@@ -134,6 +147,15 @@ class TeGUI(Frame):
 		self._createMainWindow()
 		return
 		
+	def _selectQuagga(self):
+		if self._QuaggaOrTelnet.get() == 'Q':
+			if self._ipAddress.get() == '':
+				self._ipAddress.set("Disabled")
+       			self._ipAddressEntry.configure(state='disabled')
+   		else:
+   			if self._ipAddress.get() == 'Disabled':
+				self._ipAddress.set("")
+        		self._ipAddressEntry.configure(state='normal')
 	
 	def _createMainWindow(self):
 		centerWindow(self,1000, 700)
