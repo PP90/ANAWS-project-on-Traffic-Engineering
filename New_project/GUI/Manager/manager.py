@@ -62,7 +62,7 @@ class Manager:
     ###############TOPOLOGY
     def findTopology(self):
         """find topology and save list of routers and matrix"""
-        self.listInfo, self.topologyMatrix = buildTopology.getTopology(self.anchorIp)
+        self.listInfo, self.topologyMatrix = buildTopology.getTopology(self.anchorIp, 'T')
 
     def getListIP(self):
         """return list of ip if not present call function to populate data"""
