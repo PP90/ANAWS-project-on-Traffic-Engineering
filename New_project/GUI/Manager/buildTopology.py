@@ -141,7 +141,9 @@ def telnetRouter(ipaddr, cmd):
     tn.close
     return output
 
-def getTopology(ip):
+def getTopology(ip, mode= None):
+    if(mode == None):
+        return None
     #output of the command
     #output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
     output = telnetRouter(ip, 'show ip ospf database\n')
