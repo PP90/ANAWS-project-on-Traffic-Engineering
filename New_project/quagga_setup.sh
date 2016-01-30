@@ -37,9 +37,9 @@ echo "password zebra" >> /etc/quagga/ospfd.conf
 echo "router ospf" >> /etc/quagga/ospfd.conf
 #ask user data
 echo "\tPlease enter needed data (double check since no control is implemented)"
-read -p "\taddress of the local router? " addr
-read -p "\t# of netmask bit? " num
-read -p "\tospf area? " area
+read -p "address of the local router? " addr
+read -p "# of netmask bit? " num
+read -p "ospf area? " area
 echo "  network "$addr"/"$num" area "$area >> /etc/quagga/ospfd.conf
 
 echo "Set owner"
