@@ -1,4 +1,4 @@
-#import subprocess
+import subprocess
 #import ipaddress
 import re
 import pprint
@@ -142,9 +142,14 @@ def telnetRouter(ipaddr, cmd):
     return output
 
 def getTopology(ip, mode):
-    #output of the command
-    #output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
-    output = telnetRouter(ip, 'show ip ospf database\n')
+    output = None
+    if mode == 'Q':
+        #output of the command
+        output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
+    else:
+        output = telnetRouter(ip, 'show ip ospf database\n')
+    if output == None:
+        return None, None
     #return the ip list of the routers
     interfaces = decodeTopology(output)
 
@@ -153,7 +158,9 @@ def getTopology(ip, mode):
     return interfaceList, matrix
 
 
-#lista, matrice = getTopology('192.168.3.1')
+#lista, matrice = getTopology('192.168.3.1', 'T')
+#if(lista == None):
+    #print("Some error")
 #print('lista')
 #pprint.pprint(lista)
 #print('\nmatrice')

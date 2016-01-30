@@ -11,10 +11,11 @@ from SNMP_utilization_src import *
 
 class Manager:
 
-    def __init__(self, anchorIp, cs):
+    def __init__(self, anchorIp, cs, mode):
         #main
         self.anchorIp = anchorIp
         self.communityString = cs
+        self.mode = mode
 
         #topology
         self.topologyMatrix = None
@@ -62,7 +63,7 @@ class Manager:
     ###############TOPOLOGY
     def findTopology(self):
         """find topology and save list of routers and matrix"""
-        self.listInfo, self.topologyMatrix = buildTopology.getTopology(self.anchorIp, 'T')
+        self.listInfo, self.topologyMatrix = buildTopology.getTopology(self.anchorIp, self.mode)
 
     def getListIP(self):
         """return list of ip if not present call function to populate data"""
@@ -102,7 +103,7 @@ class Manager:
         #Avoid to waste time in retrieving information already taken
         router = []
         router.append(self.findRouterObjFromAddr(addr))
-        if router[0] == None:
+        if router[0] is None:
             a = []
             a.append(addr)
             router = self.getRoutersList(a)
@@ -157,7 +158,7 @@ class Manager:
             output[self.listInfo[index][str(i) + '_name']].append(self.listInfo[index][str(i) + '_speed'])
         return output
 
-    def getAllUtilization(self, addrList, refresh = False):
+    def getAllUtilization(self, addrList, refresh=False):
         result = {}
         for addr in addrList:
             if refresh is True:
