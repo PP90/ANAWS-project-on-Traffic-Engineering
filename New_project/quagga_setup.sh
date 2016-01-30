@@ -1,6 +1,9 @@
 
 #!/bin/sh
 
+#in case of error
+#sed -i -e 's/\r$//' quagga_setup.sh
+
 #sudo request
 if [ $UID != 0 ]; then
     echo "Please run this script with sudo:"
@@ -12,6 +15,10 @@ read -p "Need to install? (y/n)" yn
 case $yn in
 	[Yy]*) sudo apt-get install quagga quagga-doc
 esac
+
+echo "Delete old conf files"
+rm /etc/quagga/zebra.conf
+rm /etc/quagga/ospfd.conf
 
 echo "Create .conf files"
 echo "\tCreate zebra.conf"
@@ -48,6 +55,7 @@ chmod 640 /etc/quagga/zebra.conf
 chmod 640 /etc/quagga/ospfd.conf
 echo "\t done"
 
+echo "\n"
 echo "manual configuration of conf files "
 echo "\tEnter /etc/quagga/daemons and set yes for both \"zebra\" and \"ospfd\""
 echo "\tEnter /etc/quagga/debian.conf and set the tun0 ip on \"zebra_options\" and \"ospfd_options\""
