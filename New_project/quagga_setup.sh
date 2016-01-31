@@ -31,6 +31,8 @@ echo "Populate configuration files"
 echo "hostname Router" >> /etc/quagga/zebra.conf
 echo "password zebra" >> /etc/quagga/zebra.conf
 echo "enable password zebra" >> /etc/quagga/zebra.conf
+echo "interface lo" >> /etc/quagga/zebra.conf
+echo "  ip address 192.168.0.100/32" >> /etc/quagga/zebra.conf
 #ospfd.conf
 echo "hostname ospfd" >> /etc/quagga/ospfd.conf
 echo "password zebra" >> /etc/quagga/ospfd.conf
