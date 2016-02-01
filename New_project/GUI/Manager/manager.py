@@ -4,7 +4,7 @@ from Mpls_snmp import *
 from SNMP_utilization_src import *
 from Graph_in_python.create_topology import *
 import threading
-
+import time
 
 #####################################
 #find method are for private use
@@ -20,6 +20,8 @@ class Manager:
         self.communityString = cs
         self.mode = mode
         self.guiReference = guiReference
+        self.thread = None
+        self.controlVariable = False
 
         #topology
         self.topologyMatrix = None
@@ -224,17 +226,21 @@ class Manager:
         return self.lspTableDictionary[ip]
 
     ###############GUI
-    def setUtilizationToGui(self, timer, addr):
-        self.findUtilization(addr)
-        result = self.getUtilization(addr)
-        self.guiReference.setUtilization(result)
-        threading.Timer(timer, self.setUtilizationToGui, [timer, addr]).start()
+    def setUtilizationToGui(self, timer, addrList):
+        while self.controlVariable:
+            result = self.getAllUtilization(addrList, True)
+            self.guiReference.setUtilization(result)
+            time.sleep(timer)
         return
 
     def startThreads(self, reruntime, addr):
-        threading.Thread(target=self.setUtilizationToGui, args=(reruntime, addr, )).start()
+        self.controlVariable = True
+        self.thread = threading.Thread(target=self.setUtilizationToGui, args=(reruntime, addr, ))
+        self.thread.setDaemon(True)
+        self.thread.start()
 
     def stopThreads(self):
-        for t in threading.enumerate():
-            if t.__class__.__name__ != '_MainThread':
-                t.cancel()
+        self.controlVariable = False
+        #for t in threading.enumerate():
+            #if t.__class__.__name__ != '_MainThread':
+                #t.cancel()
