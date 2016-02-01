@@ -23,22 +23,29 @@ def remove_not_tunnel_links(graph, not_tunnel_links):
 	return graph
 
 ##This fuction plots the network topology and possibly the links utilizations. It returns the graph with the arches removed. 
-def build_graph(graph, matrix_topology, interfaces_names, color_vector=None, plot=YES_PLOT, labels=None, graph_layout='spectral', node_size=600, node_color='blue', 			node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
+def build_graph(graph, matrix_topology, interfaces_names, color_vector=None, plot=YES_PLOT):
 
     # create networkx graph
 	G=nx.Graph()
-	
-    # add edges
 	tunneling=NO_TUNNELING
+
 	if(tunneling):
 		graph=remove_not_tunnel_links( graph, not_tunnel_links)
 		print 'After updating: ',graph	
 
+	  # add edges
 	for edge in graph:
 		G.add_edge(edge[0], edge[1])
 		
-	# these are different layouts for the network you may try
-	# spectral seems to work best
+	if(plot==YES_PLOT):
+		show_graph(G, graph, interfaces_names, color_vector)
+	else:
+		return plt
+
+##This function shows the graph.
+def show_graph(G, graph, interfaces_names=None, color_vector=None, labels=None, graph_layout='spectral', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
+
+		##defining the layout
 	if graph_layout == 'spring':
 		graph_pos=nx.spring_layout(G)
 	elif graph_layout == 'spectral':
@@ -51,40 +58,20 @@ def build_graph(graph, matrix_topology, interfaces_names, color_vector=None, plo
 	for idx, node in enumerate(G.nodes()):
 		hostname='R'+str(idx+1)
 		labels[idx]=hostname
-		#print 'Hostname: ',hostname
 	
+	nx.draw_networkx_nodes(G,graph_pos,node_size=node_size, alpha=node_alpha, node_color=node_color)
 	
-	edge_labels=dict(zip(graph, interfaces_names))
-
-	if(plot==YES_PLOT):
-		##show_graph(G)
-
-		##The next functions are drawing functions.
-		nx.draw_networkx_nodes(G,graph_pos,node_size=node_size, alpha=node_alpha, node_color=node_color)
-	
-		if(color_vector!=None):
-			nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
-		else:
-			nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=WHITE_COLOR)
-
-		nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
-		nx.draw_networkx_labels(G, graph_pos, labels, font_size=16)
-   		plt.axis('off')
-		plot_title='Network topology'
-		if(color_vector!=None):
-			plot_title=plot_title+' and utilization'
-	
-		plt.title(plot_title)
-		#plt.show()
-		return plt
+	#Drawing the edges
+	if(color_vector!=None):
+		nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
 	else:
-		return G
+		nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=WHITE_COLOR)
 
-##This function shows the graph. Not called from anybody yet.
-def show_graph(G, color_vector=None, labels=None, graph_layout='spectral', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
-	nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
-	nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=WHITE_COLOR)
-	nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
+	##draw network edges labels and nodes label
+	if(interfaces_names!=None):
+		edge_labels=dict(zip(graph, interfaces_names))
+		nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
+	
 	nx.draw_networkx_labels(G, graph_pos, labels, font_size=16)
    	plt.axis('off')
 	plot_title='Network topology'
@@ -198,6 +185,7 @@ def main():
 	#All topology
 	links_not_in_tunnel=get_arches_to_delete(matrix_topology, tunnel_topology)
 	my_graph, interfaces_names=get_graph_and_arches(matrix_topology, matrix_interfaces)
-	print build_graph(my_graph, matrix_topology, interfaces_names,  get_color_vector(matrix_utilization), YES_PLOT)
+	build_graph(my_graph, matrix_topology, interfaces_names,  get_color_vector(matrix_utilization), YES_PLOT)
 
+main()
 
