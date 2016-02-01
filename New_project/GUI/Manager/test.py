@@ -1,7 +1,8 @@
 import manager as man
 import pprint
+import time
 
-m1 = man.Manager("192.168.3.1", "public", 'Q')
+m1 = man.Manager("192.168.3.1", "public", 'T')
 
 a = m1.getTopology()
 print("\n\n matrix")
@@ -33,3 +34,8 @@ pprint.pprint(a)
 #t = m1.getTunnel("1.1.1.1")
 #print("\n Tunnels")
 #print(t)
+
+m1.startThreads(5, "a")
+m1.startThreads(3, "b")
+time.sleep(10)
+m1.stopThreads()

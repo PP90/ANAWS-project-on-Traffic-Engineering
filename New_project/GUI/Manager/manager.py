@@ -3,6 +3,8 @@ import re
 from Mpls_snmp import *
 from SNMP_utilization_src import *
 from Graph_in_python.create_topology import *
+import threading
+
 
 #####################################
 #find method are for private use
@@ -12,11 +14,12 @@ from Graph_in_python.create_topology import *
 
 class Manager:
 
-    def __init__(self, anchorIp, cs, mode):
+    def __init__(self, anchorIp, cs, mode, guiReference):
         #main
         self.anchorIp = anchorIp
         self.communityString = cs
         self.mode = mode
+        self.guiReference = guiReference
 
         #topology
         self.topologyMatrix = None
@@ -82,10 +85,10 @@ class Manager:
             #unallocated memory call find function
             self.findTopology()
         return self.topologyMatrix
-        
+
     def getGraph(self, topologyMatrix, matrix_interfaces = None):
-    	my_graph, interfaces_names = get_graph_and_arches(topologyMatrix, matrix_interfaces)
-	return build_graph(my_graph, topologyMatrix, interfaces_names)
+        my_graph, interfaces_names = get_graph_and_arches(topologyMatrix, matrix_interfaces)
+        return build_graph(my_graph, topologyMatrix, interfaces_names)
 
     ###############UTILIZATION
     def getRoutersList(self, addrList):
@@ -219,3 +222,19 @@ class Manager:
         if (ip in self.confTunnelsDictionary or ip in self.lspTableDictionary) is False:
             self.findTunnel(ip)
         return self.lspTableDictionary[ip]
+
+    ###############GUI
+    def setUtilizationToGui(self, timer, addr):
+        self.findUtilization(addr)
+        result = self.getUtilization(addr)
+        ##############self.guiReference.setUtilization(result)
+        threading.Timer(timer, self.setUtilizationToGui, [timer, addr]).start()
+        return
+
+    def startThreads(self, reruntime, addr):
+        threading.Thread(target=self.setUtilizationToGui, args=(reruntime, addr, )).start()
+
+    def stopThreads(self):
+        for t in threading.enumerate():
+            if t.__class__.__name__ != '_MainThread':
+                t.cancel()
