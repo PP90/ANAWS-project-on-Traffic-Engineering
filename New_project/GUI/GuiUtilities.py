@@ -123,7 +123,7 @@ def addTunnel(tree, tunnels, routerObj):
 		MeanRate = tunnelObj.getAttribute('mplsTunnelResourceMeanRate')
 		#Format the data in a better way
 		MaxRate = str(round(float(MaxRate) / 1000, 3)) + " Kbit/s"
-		MaxBurst = str(round(float(MaxBurst) / 1000, 3)) + " Kbit/s"
+		MaxBurst = str(MaxBurst) + " bytes"
 		MeanRate = str(round(float(MeanRate) / 1000, 3)) + " Kbit/s"
 		#Path = str(Path).replace(' ', '\n')
 		tree.insert(routerName, 'end', routerName+'_'+tunnel, text = tunnel, values = (Source, Dest,Path,MaxRate,MaxBurst,MeanRate))
