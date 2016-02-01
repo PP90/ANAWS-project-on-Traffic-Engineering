@@ -2,6 +2,7 @@ import buildTopology
 import re
 from Mpls_snmp import *
 from SNMP_utilization_src import *
+from Graph_in_python.create_topology import *
 
 #####################################
 #find method are for private use
@@ -81,6 +82,10 @@ class Manager:
             #unallocated memory call find function
             self.findTopology()
         return self.topologyMatrix
+        
+    def getGraph(self, topologyMatrix, matrix_interfaces = None):
+    	my_graph, interfaces_names = get_graph_and_arches(topologyMatrix, matrix_interfaces)
+	return build_graph(my_graph, topologyMatrix, interfaces_names)
 
     ###############UTILIZATION
     def getRoutersList(self, addrList):

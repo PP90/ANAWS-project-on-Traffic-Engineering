@@ -204,6 +204,9 @@ class TeGUI(Frame):
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		self._tree.bind('<ButtonRelease-1>', self._selectTreeItem)
+		#Show the graph describing the network topology
+		graph = self._RefToManage.getGraph(self._topologyMatrix)
+		graph.show()
 	
 	def _selectTreeItem(self, event):
 		self._itemSelected = getItemSelected(self._tree)

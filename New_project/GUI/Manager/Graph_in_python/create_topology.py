@@ -76,7 +76,7 @@ def build_graph(graph, matrix_topology, interfaces_names, color_vector=None, plo
 	
 		plt.title(plot_title)
 		#plt.show()
-		return plot
+		return plt
 	else:
 		return G
 
@@ -97,7 +97,7 @@ def show_graph(G, color_vector=None, labels=None, graph_layout='spectral', node_
 
 
 
-def get_graph_and_arches(matrix_topology, matrix_interfaces):
+def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
 	graph=[]
 	interfaces_list=[]
 	for i,element in enumerate(matrix_topology):
@@ -105,7 +105,8 @@ def get_graph_and_arches(matrix_topology, matrix_interfaces):
 			if(el!=0):
 				#print i,' ',j,' ', el						
 				graph.append((i,j))
-				interfaces_list.append(matrix_interfaces[i][j])
+				if matrix_interfaces != None:
+					interfaces_list.append(matrix_interfaces[i][j])
 	#print graph, 
 	#print interfaces_list
 	return graph, interfaces_list
@@ -113,6 +114,8 @@ def get_graph_and_arches(matrix_topology, matrix_interfaces):
 
 def interfaces_list(matrix_interfaces):
 	interfaces_list=[]
+	if matrix_interfaces == None:
+		return interfaces_list
 	for interface in matrix_interfaces:
 		if (interface!='0'):
 			interfaces_list.append(interface)
@@ -191,10 +194,10 @@ matrix_utilization=[[-1, 20, 100, -1, -1, 100],
  [-1, 80, -1, 20, -1, -1],
  [40, -1, -1, -1, -1, -1]] ##HARD CODED MATRIX UTILIZATION. IT IS ALWAYS NxN where N is the number of the router in the network.
 
-
-#All topology
-links_not_in_tunnel=get_arches_to_delete(matrix_topology, tunnel_topology)
-my_graph, interfaces_names=get_graph_and_arches(matrix_topology, matrix_interfaces)
-print build_graph(my_graph, matrix_topology, interfaces_names,  get_color_vector(matrix_utilization), YES_PLOT)
+def main():
+	#All topology
+	links_not_in_tunnel=get_arches_to_delete(matrix_topology, tunnel_topology)
+	my_graph, interfaces_names=get_graph_and_arches(matrix_topology, matrix_interfaces)
+	print build_graph(my_graph, matrix_topology, interfaces_names,  get_color_vector(matrix_utilization), YES_PLOT)
 
 
