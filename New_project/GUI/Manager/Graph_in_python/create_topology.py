@@ -5,10 +5,14 @@ import matplotlib.pyplot as plt
 THRESHOLD_GREEN=25
 THRESHOLD_RED=75
 WHITE_COLOR='#FFFFFF'
+YES_TUNNELING=1
+NO_TUNNELING=0
+YES_PLOT=1
+NO_PLOT=0
 
-##This fuction plots the network topology and optionally also the links utilizations
 
-##This fuction returns the graph with the arches removed. The arches removed are those not present in the tunnel
+##Giving as parameter the graph and the list of the link not in tunnel, this fuction returns the graph with only tunnel links.
+##The arches removed are those not present in the tunnel. This functionality is not completed yet.
 def remove_not_tunnel_links(graph, not_tunnel_links):
 	print graph
 	print not_tunnel_links
@@ -18,15 +22,14 @@ def remove_not_tunnel_links(graph, not_tunnel_links):
 					graph.remove(edge)				
 	return graph
 
-##Draw the topology either with or without the utilizations.
-def draw_graph(graph, matrix_topology, interfaces_names, color_vector=None, not_tunnel_links=None, labels=None, graph_layout='spectral', node_size=600, node_color='blue', 			node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6,
-               edge_text_pos=0.25, text_font='sans-serif'):
+##This fuction plots the network topology and possibly the links utilizations. It returns the graph with the arches removed. 
+def build_graph(graph, matrix_topology, interfaces_names, color_vector=None, plot=YES_PLOT, labels=None, graph_layout='spectral', node_size=600, node_color='blue', 			node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
 
     # create networkx graph
 	G=nx.Graph()
 	
     # add edges
-	tunneling=1
+	tunneling=NO_TUNNELING
 	if(tunneling):
 		graph=remove_not_tunnel_links( graph, not_tunnel_links)
 		print 'After updating: ',graph	
@@ -48,22 +51,44 @@ def draw_graph(graph, matrix_topology, interfaces_names, color_vector=None, not_
 	for idx, node in enumerate(G.nodes()):
 		hostname='R'+str(idx+1)
 		labels[idx]=hostname
-		print 'Hostname: ',hostname
+		#print 'Hostname: ',hostname
 	
 	
 	edge_labels=dict(zip(graph, interfaces_names))
 
-	nx.draw_networkx_nodes(G,graph_pos,node_size=node_size, alpha=node_alpha, node_color=node_color)
-	
-	if(color_vector!=None):
-		nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
-	else:
-		nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=WHITE_COLOR)
+	if(plot==YES_PLOT):
+		##show_graph(G)
 
+		##The next functions are drawing functions.
+		nx.draw_networkx_nodes(G,graph_pos,node_size=node_size, alpha=node_alpha, node_color=node_color)
+	
+		if(color_vector!=None):
+			nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
+		else:
+			nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=WHITE_COLOR)
+
+		nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
+		nx.draw_networkx_labels(G, graph_pos, labels, font_size=16)
+   		plt.axis('off')
+		plot_title='Network topology'
+		if(color_vector!=None):
+			plot_title=plot_title+' and utilization'
+	
+		plt.title(plot_title)
+		#plt.show()
+		return plot
+	else:
+		return G
+
+##This function shows the graph. Not called from anybody yet.
+def show_graph(G, color_vector=None, labels=None, graph_layout='spectral', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
+	nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=color_vector)
+	nx.draw_networkx_edges(G,graph_pos,width=edge_tickness,	alpha=edge_alpha,edge_color=WHITE_COLOR)
 	nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_labels, label_pos=edge_text_pos, bbox=dict(facecolor='none',edgecolor='none'))
 	nx.draw_networkx_labels(G, graph_pos, labels, font_size=16)
    	plt.axis('off')
 	plot_title='Network topology'
+
 	if(color_vector!=None):
 		plot_title=plot_title+' and utilization'
 	
@@ -93,6 +118,7 @@ def interfaces_list(matrix_interfaces):
 			interfaces_list.append(interface)
 	return interfaces_list
 
+##Giving in input the matrix utilizations, this fuction returns the color vector. The color vector consists of of an list in which there are many elements how many are the edge in the graph. The element are the corresponding utilization expressed from green to red encoding as follow in color_shades vector.
 def get_color_vector(matrix_utilization):
 	color_vector=[]
 	color_shades=['#2FFF91','#11FF00','#22FF00','#33FF00','#44FF00','#55FF00','#66FF00','#77FF00','#88FF00','#99FF00',
@@ -105,9 +131,12 @@ def get_color_vector(matrix_utilization):
 		for j, element in enumerate(row):
 			if (j>i):
 				element=int(element)
-				index=element/3
-				#print '(i,j)= ','(',i,',',j,')','   ',element
 				if element!=-1:
+					element=(matrix_utilization[i][j]+matrix_utilization[j][i])/2
+					##The matrix utilization can be asymmetric.
+					##A link can be connected to two interfaces. Such interfaces can have different utilizations.
+					##The utilization on the link will be averaged
+					index=element/3
 					color_vector.append(color_shades[index])
 	return color_vector
 	
@@ -155,17 +184,17 @@ matrix_interfaces=[[0, 'FA00', 'FA10', 0, 0, 'ETH20'],
 
 
 
-matrix_utilization=[[-1, 20, 100, -1, -1, 0],
+matrix_utilization=[[-1, 20, 100, -1, -1, 100],
  [20, -1, -1, -1, 80, -1],
  [30, -1, -1, 55, -1, -1],
  [-1, -1, 55, -1, 20, -1],
  [-1, 80, -1, 20, -1, -1],
- [40, -1, -1, -1, -1, -1]] ##HARD CODED MATRIX UTILIZATION. THE MATRIX CAN BE NOT SYMMETRIC. TO FIX 
+ [40, -1, -1, -1, -1, -1]] ##HARD CODED MATRIX UTILIZATION. IT IS ALWAYS NxN where N is the number of the router in the network.
 
 
 #All topology
 links_not_in_tunnel=get_arches_to_delete(matrix_topology, tunnel_topology)
 my_graph, interfaces_names=get_graph_and_arches(matrix_topology, matrix_interfaces)
-draw_graph(my_graph,matrix_topology, interfaces_names, None, links_not_in_tunnel)
+print build_graph(my_graph, matrix_topology, interfaces_names,  get_color_vector(matrix_utilization), YES_PLOT)
 
 
