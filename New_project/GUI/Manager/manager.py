@@ -227,7 +227,7 @@ class Manager:
     def setUtilizationToGui(self, timer, addr):
         self.findUtilization(addr)
         result = self.getUtilization(addr)
-        ##############self.guiReference.setUtilization(result)
+        self.guiReference.setUtilization(result)
         threading.Timer(timer, self.setUtilizationToGui, [timer, addr]).start()
         return
 

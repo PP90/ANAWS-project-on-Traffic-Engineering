@@ -6,10 +6,12 @@ import netaddr
 import tkMessageBox
 from Manager.Mpls_snmp.Container import * 
 from Manager.manager import *
+from threading import *
 
 class TeGUI(Frame):
 	def __init__(self):
 		Frame.__init__(self)
+		self.master.protocol("WM_DELETE_WINDOW", self.closeGUI)
 		self._RefToManager = None
 		self._ipAddress = StringVar()
 		self._snmpCommunity = StringVar()
@@ -41,6 +43,8 @@ class TeGUI(Frame):
 		self._shownTunnels = []
 		#Tree-view reserved for tunnels
 		self._underTree = None
+		#Create the condition object for implementing the lock
+		self.lock = Condition()
 		#Start the GUI
 		self._startGUI()
 	
@@ -54,7 +58,16 @@ class TeGUI(Frame):
 	def setTunnelList(self, routerName ,TunnelObjectList):
 		return
 	def closeGUI(self):
-		return
+		self._RefToManager.stopThreads()
+		self.master.destroy()
+		
+	def setUtilization(self, utilizations):
+		#Must be thread safe
+		self.lock.acquire()
+		if self._currentView == "Utilizations":
+			print utilizations
+		self.lock.release()
+			
 	"""This function creates the user interface with the first layout"""
 	def _startGUI(self):
 		#Set the window title
@@ -135,7 +148,7 @@ class TeGUI(Frame):
 			return
 		
 		#Everything should be ok, create the manager object
-		self._RefToManage = Manager(self._ipAddress.get(), self._snmpCommunity.get(), self._QuaggaOrTelnet.get())
+		self._RefToManager = Manager(self._ipAddress.get(), self._snmpCommunity.get(), self._QuaggaOrTelnet.get(), self)
 		
 		#Clean the window up
 		self._title.grid_forget()
@@ -196,16 +209,16 @@ class TeGUI(Frame):
 			self._tree.destroy()
 		if refresh == True:		
 			#Obtain the network topology
-			self._routerAddrList = self._RefToManage.getListIP()
-			self._topologyMatrix = self._RefToManage.getTopology()
-			self._routerList = self._RefToManage.getRoutersList(self._routerAddrList)
+			self._routerAddrList = self._RefToManager.getListIP()
+			self._topologyMatrix = self._RefToManager.getTopology()
+			self._routerList = self._RefToManager.getRoutersList(self._routerAddrList)
 			self._routerAddrList.pop(self._routerAddrList.index("192.168.0.100"))
 		
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		self._tree.bind('<ButtonRelease-1>', self._selectTreeItem)
 		#Show the graph describing the network topology
-		graph = self._RefToManage.getGraph(self._topologyMatrix)
+		graph = self._RefToManager.getGraph(self._topologyMatrix)
 		graph.show()
 	
 	def _selectTreeItem(self, event):
@@ -215,9 +228,12 @@ class TeGUI(Frame):
 	def _printUtilizationInfo(self, refresh = False):
 		#Obtain all utilization from each router
 		response = {}
-		response = self._RefToManage.getAllUtilization(self._routerAddrList, refresh)
+		response = self._RefToManager.getAllUtilization(self._routerAddrList, refresh)
 		self._tree = utilizTreeView(self._tree, ["Router Name", "Speed","Utilization %","Connected to"], response)
-		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
+		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N)
+		#Start the thread for the polling 
+		self._RefToManager.startThreads(self._RefreshTime, self._routerAddrList[0]) 
+		self._RefToManager.startThreads(self._RefreshTime, self._routerAddrList[1]) 
 	
 	def _printTunnelsInfo(self):
 		response = {}
@@ -237,8 +253,8 @@ class TeGUI(Frame):
 			return
 			
 		self._shownTunnels.append(self._itemSelected)
-		response = self._RefToManage.getAllTunnels(routerAddr)
-		formattedPaths = self._RefToManage.getTunnel(routerAddr)
+		response = self._RefToManager.getAllTunnels(routerAddr)
+		formattedPaths = self._RefToManager.getTunnel(routerAddr)
 		#Filter the tunnels information
 		for tunnel in response.keys():
 			role = response[tunnel].getAttribute('mplsTunnelRole')
