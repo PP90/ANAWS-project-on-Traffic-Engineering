@@ -216,7 +216,8 @@ class TeGUI(Frame):
 			self._routerAddrList = self._RefToManager.getListIP()
 			self._topologyMatrix = self._RefToManager.getTopology()
 			self._routerList = self._RefToManager.getRoutersList(self._routerAddrList)
-			self._routerAddrList.pop(self._routerAddrList.index("192.168.0.100"))
+			if "192.168.0.100" in self._routerAddrList:
+				self._routerAddrList.pop(self._routerAddrList.index("192.168.0.100"))
 		
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
