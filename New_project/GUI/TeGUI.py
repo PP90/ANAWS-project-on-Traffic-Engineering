@@ -45,6 +45,8 @@ class TeGUI(Frame):
 		self._underTree = None
 		#Create the condition object for implementing the lock
 		self.lock = Condition()
+		#The graph object to show to the user
+		self._graph = None
 		#Start the GUI
 		self._startGUI()
 	
@@ -58,14 +60,16 @@ class TeGUI(Frame):
 	def setTunnelList(self, routerName ,TunnelObjectList):
 		return
 	def closeGUI(self):
-		self._RefToManager.stopThreads()
+		if self._graph != None:
+			self._graph.close()
+		if self._RefToManager != None:
+			self._RefToManager.stopThreads()
 		self.master.destroy()
-		
 	def setUtilization(self, utilizations):
 		#Must be thread safe
 		self.lock.acquire()
 		if self._currentView == "Utilizations":
-			print utilizations
+			utilizTreeView(self._tree, ["Router Name", "Speed","Utilization %","Connected to"], utilizations)
 		self.lock.release()
 			
 	"""This function creates the user interface with the first layout"""
@@ -218,8 +222,8 @@ class TeGUI(Frame):
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		self._tree.bind('<ButtonRelease-1>', self._selectTreeItem)
 		#Show the graph describing the network topology
-		graph = self._RefToManager.getGraph(self._topologyMatrix)
-		graph.show()
+		self._graph = self._RefToManager.getGraph(self._topologyMatrix)
+		self._graph.show()
 	
 	def _selectTreeItem(self, event):
 		self._itemSelected = getItemSelected(self._tree)
@@ -231,9 +235,10 @@ class TeGUI(Frame):
 		response = self._RefToManager.getAllUtilization(self._routerAddrList, refresh)
 		self._tree = utilizTreeView(self._tree, ["Router Name", "Speed","Utilization %","Connected to"], response)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N)
-		#Start the thread for the polling 
-		self._RefToManager.startThreads(self._RefreshTime, self._routerAddrList[0]) 
-		self._RefToManager.startThreads(self._RefreshTime, self._routerAddrList[1]) 
+		#Start the thread for the polling if the mode is setted to async
+		if self._Mode == 0:
+			self._RefToManager.startThreads(self._RefreshTime, self._routerAddrList) 
+		 
 	
 	def _printTunnelsInfo(self):
 		response = {}
@@ -346,8 +351,19 @@ class TeGUI(Frame):
 		#Check for negative time
 		if self._refreshTimeVar.get() <= 0:
 			self._refreshTimeVar.set(self._defaultRefreshTime)	
-		#Copy the state variables in the data variables
+		#Check if the refresh time is changed 
+		if self._RefreshTime != self._refreshTimeVar.get() and self._currentView == 'Utilizations':
+			#Restart the threads with the new time interval
+			self._RefToManager.stopThreads()
+			self._RefToManager.startThreads(self._refreshTimeVar.get(), self._routerAddrList)
 		self._RefreshTime = self._refreshTimeVar.get()
+		#Check if the working mode is changed
+		if self._Mode != self._pollingVar.get() and self._currentView == 'Utilizations':
+			#If equal to 0 async mode, otherwise sync. Default = 1
+			if self._pollingVar.get() == 0:
+				self._RefToManager.startThreads(self._refreshTimeVar.get(), self._routerAddrList)
+			else:
+				self._RefToManager.stopThreads()
 		self._Mode = self._pollingVar.get()
 		#If the user has decided to see all or only active interfaces
 		if self._allInterfaces != self._interfacesVar.get() and self._currentView == 'Topology':
