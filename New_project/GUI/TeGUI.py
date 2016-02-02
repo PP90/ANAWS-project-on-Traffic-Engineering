@@ -222,8 +222,40 @@ class TeGUI(Frame):
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		self._tree.bind('<ButtonRelease-1>', self._selectTreeItem)
 		#Show the graph describing the network topology
-		self._graph = self._RefToManager.getGraph(self._topologyMatrix)
+		#But before build the interfaces matrix
+		interfacesMatrix = self._buildInterfacesMatrix()
+		print "Interfaces", interfacesMatrix
+		print "Topology",self._topologyMatrix
+		self._graph = self._RefToManager.getGraph(self._topologyMatrix, interfacesMatrix)
 		self._graph.show()
+	
+	def _buildInterfacesMatrix(self):
+		matrix = []
+		for row in self._topologyMatrix:
+			matrix.append([])
+			rowIndex = self._topologyMatrix.index(row)
+			router = self._routerList[rowIndex]
+			routerInterfacesList =  router.get_interfaces()
+			i = 0
+			for elem in row:
+				if elem == 0:
+					matrix[rowIndex].insert(i, 0)
+					i += 1
+					continue
+				columnIndex = row.index(elem)
+				for interf in routerInterfacesList:
+					if interf.get_address_if() == elem:
+						interfaceName = interf.get_name()
+						interfaceName = interfaceName.replace("Ethernet", "Eth")
+						interfaceName = interfaceName.replace("Fast", "F")
+						interfaceName = interfaceName.replace("Serial", "S")
+						matrix[rowIndex].insert(columnIndex, interfaceName)
+						break
+				i += 1
+						
+		return matrix
+				
+					
 	
 	def _selectTreeItem(self, event):
 		self._itemSelected = getItemSelected(self._tree)

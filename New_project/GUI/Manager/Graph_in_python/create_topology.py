@@ -44,7 +44,7 @@ def build_graph(graph, matrix_topology, interfaces_names=None, color_vector=None
 		return plt
 
 ##This function shows the graph.
-def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layout='spectral', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
+def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layout='spring', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
 
 		##defining the layout
 	if graph_layout == 'spring':
@@ -89,11 +89,14 @@ def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
 	graph=[]
 	interfaces_list=[]
 	for i,element in enumerate(matrix_topology):
+		print element
 		for j,el in enumerate(element):
+			print '\t', el
 			if(el!=0):
 				#print i,' ',j,' ', el						
-				graph.append((i,j))
+				graph.append((j,i))
 				if matrix_interfaces != None:
+					print '\t', matrix_interfaces[i][j]
 					interfaces_list.append(matrix_interfaces[i][j])
 	#print graph, 
 	#print interfaces_list

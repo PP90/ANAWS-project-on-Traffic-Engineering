@@ -91,7 +91,7 @@ def addRoutersToTree(tree, routerObjList, topologyMatrix = None, allInterfaces =
 				if IfAddress in topologyRow:
 					#The position of this address inside the row gives next-hop router: column X-1 => router X 
 					pos = topologyRow.index(IfAddress)
-					print topologyRow, pos, IfAddress
+					#print topologyRow, pos, IfAddress
 					#With the position you can retrieve the router names
 					nextHopRouter = routerObjList[pos].get_hostname()
 					nextHopRouterList.append(nextHopRouter)
