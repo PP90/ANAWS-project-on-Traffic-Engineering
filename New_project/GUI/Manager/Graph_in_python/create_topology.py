@@ -89,14 +89,11 @@ def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
 	graph=[]
 	interfaces_list=[]
 	for i,element in enumerate(matrix_topology):
-		print element
 		for j,el in enumerate(element):
-			print '\t', el
 			if(el!=0):
 				#print i,' ',j,' ', el						
 				graph.append((j,i))
 				if matrix_interfaces != None:
-					print '\t', matrix_interfaces[i][j]
 					interfaces_list.append(matrix_interfaces[i][j])
 	#print graph, 
 	#print interfaces_list
