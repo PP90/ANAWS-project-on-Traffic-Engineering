@@ -7,6 +7,7 @@ import tkMessageBox
 from Manager.Mpls_snmp.Container import * 
 from Manager.manager import *
 from threading import *
+import matplotlib.pyplot as plt
 
 class TeGUI(Frame):
 	def __init__(self):
@@ -60,8 +61,7 @@ class TeGUI(Frame):
 	def setTunnelList(self, routerName ,TunnelObjectList):
 		return
 	def closeGUI(self):
-		if self._graph != None:
-			self._graph.close()
+		plt.close()
 		if self._RefToManager != None:
 			self._RefToManager.stopThreads()
 		self.master.destroy()
@@ -205,30 +205,28 @@ class TeGUI(Frame):
 		tunnelsButton.grid(padx = 5, column = 0, row = 4) 
 		
 		#Show the topology information (This process can take a while)
-		self._printTopologyInfo()
 		self._currentView = 'Topology'
+		self._printTopologyInfo()
 	
 	def _printTopologyInfo(self, refresh = True):
 		if self._tree is not None:
 			self._tree.destroy()
 		if refresh == True:		
+			plt.close()
 			#Obtain the network topology
 			self._routerAddrList = self._RefToManager.getListIP()
 			self._topologyMatrix = self._RefToManager.getTopology()
 			self._routerList = self._RefToManager.getRoutersList(self._routerAddrList)
 			if "192.168.0.100" in self._routerAddrList:
 				self._routerAddrList.pop(self._routerAddrList.index("192.168.0.100"))
-		
+			#Show the graph describing the network topology
+			#But before build the interfaces matrix
+			interfacesMatrix = self._buildInterfacesMatrix()
+			self._RefToManager.getGraph(self._topologyMatrix, interfacesMatrix)
+				
 		self._tree = createTreeView(self.infoFrame, ["Router Name", "IP address","Subnet mask","Connected to"], self._routerList, self._topologyMatrix, self._allInterfaces)
 		self._tree.grid(padx = 5,pady = 5, column = 0, row = 0, sticky = W+E+S+N) 
 		self._tree.bind('<ButtonRelease-1>', self._selectTreeItem)
-		#Show the graph describing the network topology
-		#But before build the interfaces matrix
-		interfacesMatrix = self._buildInterfacesMatrix()
-		print "Interfaces", interfacesMatrix
-		print "Topology",self._topologyMatrix
-		self._graph = self._RefToManager.getGraph(self._topologyMatrix, interfacesMatrix)
-		self._graph.show()
 	
 	def _buildInterfacesMatrix(self):
 		matrix = []
@@ -247,7 +245,7 @@ class TeGUI(Frame):
 				for interf in routerInterfacesList:
 					if interf.get_address_if() == elem:
 						interfaceName = interf.get_name()
-						interfaceName = interfaceName.replace("Ethernet", "Eth")
+						interfaceName = interfaceName.replace("Ethernet", "E")
 						interfaceName = interfaceName.replace("Fast", "F")
 						interfaceName = interfaceName.replace("Serial", "S")
 						matrix[rowIndex].insert(columnIndex, interfaceName)
@@ -379,8 +377,16 @@ class TeGUI(Frame):
 		self._settingsFrame.destroy()
 		
 	def _closeSettings(self):
-		#FOR TESTING
-		print self._pollingVar.get(),str(self._refreshTimeVar.get()), self._interfacesVar.get()
+		#Close the window
+		self._settingsFrame.destroy()
+		
+		#If the user has decided to see all or only active interfaces
+		if self._allInterfaces != self._interfacesVar.get() and self._currentView == 'Topology':
+			self._allInterfaces = self._interfacesVar.get()
+			self._printTopologyInfo(False)
+		else:
+			self._allInterfaces = self._interfacesVar.get()		
+		
 		#Check for negative time
 		if self._refreshTimeVar.get() <= 0:
 			self._refreshTimeVar.set(self._defaultRefreshTime)	
@@ -390,6 +396,7 @@ class TeGUI(Frame):
 			self._RefToManager.stopThreads()
 			self._RefToManager.startThreads(self._refreshTimeVar.get(), self._routerAddrList)
 		self._RefreshTime = self._refreshTimeVar.get()
+		
 		#Check if the working mode is changed
 		if self._Mode != self._pollingVar.get() and self._currentView == 'Utilizations':
 			#If equal to 0 async mode, otherwise sync. Default = 1
@@ -398,14 +405,6 @@ class TeGUI(Frame):
 			else:
 				self._RefToManager.stopThreads()
 		self._Mode = self._pollingVar.get()
-		#If the user has decided to see all or only active interfaces
-		if self._allInterfaces != self._interfacesVar.get() and self._currentView == 'Topology':
-			self._allInterfaces = self._interfacesVar.get()
-			self._printTopologyInfo(False)
-		else:
-			self._allInterfaces = self._interfacesVar.get()
-		#Close the window
-		self._settingsFrame.destroy()
 	
 	def _links(self):
 		if self._currentView == 'Utilizations':

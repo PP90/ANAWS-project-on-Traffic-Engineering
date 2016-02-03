@@ -79,7 +79,8 @@ def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layo
 		plot_title=plot_title+' and utilization'
 	
 	plt.title(plot_title)
-	plt.show()
+	plt.ion()
+	plt.plot(block=False)
 
 def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
 	"""This function returns the graph as a list of connections among the network nodes and the interface list" giving in input the matrix topology and optionally the matrix interface"""
