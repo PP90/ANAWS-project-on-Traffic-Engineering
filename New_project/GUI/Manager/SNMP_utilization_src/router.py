@@ -23,6 +23,7 @@ class router:
 		print "Time up: ",self.old_timeUp
 		for x in list(self.interfaces.values()):
 			x.display_info()
+			
 	##A new time up values is set and then is computed the difference between old and new timeUp
 	def get_timeUp_diff(self, timeUp):
 		self.old_timeUp=self.new_timeUp
@@ -47,7 +48,12 @@ class router:
 
 	##A new byte in and out valuesare set and then is compute the difference between old and new in out bytes
 	def get_inout_bytes_diff(self,in_byte, out_byte,index_if):
+
+		if(isinstance(self.interfaces, list)==True):
+			print "Is a list"
+			
 		in_diff, out_diff=self.interfaces[index_if].set_new_inout_byte(in_byte, out_byte)
+		
 		return in_diff, out_diff		 
 	
 	def set_inout_utilization_if(self, index_if, in_uti, out_uti):

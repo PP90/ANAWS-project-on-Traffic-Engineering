@@ -244,7 +244,7 @@ def clear_VFiles(router):
 	print subprocess.check_output(bash_command, shell=True)
 
 def update_info_router(name_file, router):
-	"""#Given the name_file (which is the most recent for a specific router) and a router object, this function prints out the in and out utilization of all interfaces of a router. The router object is passed as parameter"""
+	"""Given the name_file (which is the most recent for a specific router) and a router object, this function prints out the in and out utilization of all interfaces of a router. The router object is passed as parameter"""
 	in_bytes=-1;
 	out_bytes=-1;
         debug=0
@@ -252,11 +252,14 @@ def update_info_router(name_file, router):
 	lines= f.readlines()
 	if_list=router.get_interfaces()
 	ifs_names=[];
+	ifs_indexes=[]
 	for interface in if_list:
 		ifs_names.append(interface.get_name())
-
+		ifs_indexes.append(interface.get_id())
+		
 	timeUp_diff=router.get_timeUp_diff(get_timeUp_from_namefile(name_file))
 	timeUp_diff=int(convert_in_second(timeUp_diff))	
+	
 	for idx,name_if in enumerate(ifs_names):
 		for line in lines:
 			if name_if in line:
@@ -266,12 +269,13 @@ def update_info_router(name_file, router):
 				tmp=tmp.split(",",1)[1]
 				in_bytes=int(tmp.split(", ",1)[0])
 				out_bytes=int(tmp.split(", ",1)[1])
-				in_diff, out_diff =router.get_inout_bytes_diff(in_bytes, out_bytes,idx)
-                                if_speed=float(router.get_single_interface(idx).get_if_speed())
+				in_diff, out_diff =router.get_inout_bytes_diff(in_bytes, out_bytes,ifs_indexes[idx])##here
+				
+                                if_speed=float(router.get_single_interface(ifs_indexes[idx]).get_if_speed())
 				
 				in_utilization=(in_diff*8*100)/(if_speed*timeUp_diff)
                                 out_utilization=(out_diff*8*100)/(if_speed*timeUp_diff)
-				router.set_inout_utilization_if(idx, in_utilization, out_utilization)
+				router.set_inout_utilization_if(ifs_indexes[idx], in_utilization, out_utilization)
 		
         f.close()
 	delete_file(name_file) ##Since that the file is not anymore useful, has to be deleted
@@ -381,7 +385,7 @@ def test():
 	##The utilizations are obtained waiting 2 VFile sent by router r itself.
 	#Only the router object needed for this function.
 	#It takes at least one minute to see the output results.
-	utilization_VFile_once=0
+	utilization_VFile_once=1
 	if(utilization_VFile_once):
 		my_router=get_utilization_router_VFile(r)##Return the router with the utilization by VFiles
 		my_router.print_ifs_utilization()##print the interfaces utilizations of the router
@@ -406,4 +410,4 @@ def test():
 		polling_interval=1##SECONDS
 		get_utilization_polling(routers_list, polling_interval, community_name)
 
-#test()
+#stest()

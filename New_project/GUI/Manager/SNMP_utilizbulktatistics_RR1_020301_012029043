@@ -1,0 +1,18 @@
+Schema-def E20_schema "%u, %s ,%s ,%u, %u"
+       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
+Schema-def E21_schema "%u, %s ,%s ,%u, %u"
+       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
+Schema-def E22_schema "%u, %s ,%s ,%u, %u"
+       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
+Schema-def FA00_schema "%u, %s ,%s ,%u, %u"
+       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
+Schema-def FA10_schema "%u, %s ,%s ,%u, %u"
+       epochtime ifDescr instanceOID ifInOctets ifOutOctets 
+Schema-def GLOBAL "%s, %s, %u, %u, %u, %u, %u"
+       hostname date timeofday sysuptime cpu5min cpu1min cpu5sec
+E20_schema: 1014945629, Ethernet2/0, .3, 0, 100835
+E21_schema: 1014945629, Ethernet2/1, .4, 0, 100835
+E22_schema: 1014945629, Ethernet2/2, .5, 86244, 202793
+FA00_schema: 1014945629, FastEthernet0/0, .1, 236189, 267099
+FA10_schema: 1014945629, FastEthernet1/0, .2, 196111, 245665
+Global: R1, 20020301, 012126, 4886, 0%, 0%, 1%

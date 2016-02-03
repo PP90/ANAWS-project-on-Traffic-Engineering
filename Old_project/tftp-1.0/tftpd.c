@@ -19,7 +19,6 @@ Notes:		Here we are using the sendto and recvfrom
 #include "tftp.h"
 
 
-
 /* Function prototypes */
 void tsend (char *, struct sockaddr_in, char *, int);
 void tget (char *, struct sockaddr_in, char *, int);
@@ -28,7 +27,7 @@ void usage (void);
 
 /* default values which can be controlled by command line */
 int debug = 0;
-char path[64] = "/tmp/";
+char path[70] = "/tmp/";
 int port = 69;
 unsigned short int ackfreq = 1;
 int datasize = 512;
@@ -39,7 +38,7 @@ main (int argc, char **argv)
   /*local variables */
   extern char *optarg;
   int sock, n, client_len, pid, status, opt, tid;
-  char opcode, *bufindex, filename[196], mode[12];
+  char opcode, *bufindex, filename[200], mode[12];
 
   struct sockaddr_in server, client;	/*the address structure for both the server and client */
 
@@ -260,7 +259,7 @@ tget (char *pFilename, struct sockaddr_in client, char *pMode, int tid)
   unsigned char filebuf[MAXDATASIZE + 1];
   unsigned char packetbuf[MAXDATASIZE + 12];
   extern int errno;
-  char filename[128], mode[12], fullpath[196], *bufindex, ackbuf[512], filename_bulk[128];
+  char filename[128], mode[12], fullpath[200], *bufindex, ackbuf[512], filename_bulk[128];
 
   struct sockaddr_in data;
   FILE *fp;			/* pointer to the file we will be getting */
@@ -317,7 +316,15 @@ tget (char *pFilename, struct sockaddr_in client, char *pMode, int tid)
 
     }
   strcpy (fullpath, path);
+  printf("Size of full path is %d\n",strlen(fullpath));
+  if(debug){
+	printf("AAAAAAAAAAAAAAAA Full Path plus filename is %s\n",fullpath);
+  	}
   strncat (fullpath, filename, sizeof (fullpath) - 1);	//build the full file path by appending filename to path
+ 	  if(debug){
+	printf("BBBBBBBBBBBBBB Full Path plus filename is %s\n",fullpath);
+  	}
+ 
   fp = fopen (fullpath, "w");	/* open the file for writing */
   if (fp == NULL)
     {				//if the pointer is null then the file can't be opened - Bad perms 
@@ -339,7 +346,6 @@ tget (char *pFilename, struct sockaddr_in client, char *pMode, int tid)
     {
       if (debug)
 	printf ("Getting file... (destination: %s) \n", fullpath);
-
     }
   /* zero the buffer before we begin */
   memset (filebuf, 0, sizeof (filebuf));
@@ -547,7 +553,7 @@ tsend (char *pFilename, struct sockaddr_in client, char *pMode, int tid)
   unsigned char filebuf[MAXDATASIZE + 1];
   unsigned char packetbuf[MAXACKFREQ][MAXDATASIZE + 12],
     recvbuf[MAXDATASIZE + 12];
-  char filename[128], mode[12], fullpath[196], *bufindex;
+  char filename[128], mode[12], fullpath[200], *bufindex;
   struct sockaddr_in ack;
 
   FILE *fp;			/* pointer to the file we will be sending */
