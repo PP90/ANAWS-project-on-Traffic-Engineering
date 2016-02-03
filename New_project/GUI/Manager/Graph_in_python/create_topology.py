@@ -10,10 +10,8 @@ NO_TUNNELING=0
 YES_PLOT=1
 NO_PLOT=0
 
-##Not used yet.
-##Giving as parameter the graph and the list of the link not in tunnel, this fuction returns the graph with only tunnel links.
-##The arches removed are those not present in the tunnel. This functionality is not completed yet.
 def remove_not_tunnel_links(graph, not_tunnel_links):
+	""""Giving as parameter the graph and the list of the link not in tunnel, this fuction returns the graph with only links in tunnel. The arches removed are those not present in the tunnel. This functionality is not completed yet."""
 	#print graph
 	#print not_tunnel_links
 	for link in not_tunnel_links:
@@ -23,10 +21,10 @@ def remove_not_tunnel_links(graph, not_tunnel_links):
 	return graph
 
 
-##This fuction plots the network topology and possibly the links utilizations. It returns the graph with the arches removed. 
-def build_graph(graph, matrix_topology, interfaces_names=None, color_vector=None, plot=YES_PLOT):
 
-    # create networkx graph
+def build_graph(graph, matrix_topology, interfaces_names=None, color_vector=None, plot=YES_PLOT):
+	""" As title, this function builds the links list and the matrix_topology. The other parameters are optional. The graph can be plotted"""
+
 	G=nx.Graph()
 	tunneling=NO_TUNNELING
 
@@ -43,9 +41,9 @@ def build_graph(graph, matrix_topology, interfaces_names=None, color_vector=None
 	else:
 		return plt
 
-##This function shows the graph.
-def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layout='spring', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
 
+def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layout='spring', node_size=600, node_color='blue',node_alpha=0.5,node_text_size=4, edge_color='blue', edge_alpha=0.9, edge_tickness=6, edge_text_pos=0.25, text_font='sans-serif'):
+	"""##This function shows the graph giving in input the optional feauters of the graph itself"""
 		##defining the layout
 	if graph_layout == 'spring':
 		graph_pos=nx.spring_layout(G)
@@ -83,9 +81,8 @@ def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layo
 	plt.title(plot_title)
 	plt.show()
 
-
-##This function returns the graph as a list of connections among the network nodes and the interface list
 def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
+	"""This function returns the graph as a list of connections among the network nodes and the interface list" giving in input the matrix topology and optionally the matrix interface"""
 	graph=[]
 	interfaces_list=[]
 	for i,element in enumerate(matrix_topology):
@@ -101,6 +98,7 @@ def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
 
 
 def interfaces_list(matrix_interfaces):
+	"""Giving the matrix interfaces this function returns the interfaces list"""
 	interfaces_list=[]
 	if matrix_interfaces == None:
 		return interfaces_list
@@ -111,6 +109,7 @@ def interfaces_list(matrix_interfaces):
 
 ##Giving in input the matrix utilizations, this fuction returns the color vector. The color vector consists of of an list in which there are many elements how many are the edge in the graph. The element are the corresponding utilization expressed from green to red encoding as follow in color_shades vector.
 def get_color_vector(matrix_utilization):
+	"""Giving in input the matrix utilization, this functions returns the color vector, i.e. a graphic indication from green to red that indicates how much a channel is utilized. Light blue color indicates zero utilizations"""
 	color_vector=[]
 	color_shades=['#2FFF91','#11FF00','#22FF00','#33FF00','#44FF00','#55FF00','#66FF00','#77FF00','#88FF00','#99FF00',
 '#AAFF00','#BBFF00','#CCFF00','#DDFF00','#EEFF00','#FFFF00','#FFEE00','#FFDD00','#FFCC00','#FFBB00',
@@ -132,6 +131,7 @@ def get_color_vector(matrix_utilization):
 	return color_vector
 	
 def get_arches_to_delete(matrix_topology, tunnel_topology):
+	"""This functions delete the arches not present in the tunnel topology. Not completed yet."""
 	edge_to_delete=[]
 	for i,row in enumerate(matrix_topology):
 		for j,element in enumerate(row):
@@ -182,8 +182,9 @@ matrix_utilization=[[-1, 20, 100, -1, -1, 100],
  [-1, 80, -1, 20, -1, -1],
  [40, -1, -1, -1, -1, -1]] ##HARD CODED MATRIX UTILIZATION. IT IS ALWAYS NxN where N is the number of the router in the network.
 
-def main():
+def test():
 	#All topology
-	links_not_in_tunnel=get_arches_to_delete(matrix_topology, tunnel_topology)
-	my_graph, interfaces_names=get_graph_and_arches(matrix_topology)
-	build_graph(my_graph, matrix_topology)
+	my_graph, interfaces_names=get_graph_and_arches(matrix_topology, matrix_interfaces)
+	build_graph(my_graph, matrix_topology, interfaces_names, get_color_vector(matrix_utilization))
+
+#test()
