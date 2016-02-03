@@ -9,11 +9,26 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 debug=0
 
-##Given in input the router address it returns its hostname through SNMP protocol
+YES_TESTING=1
+NO_TESTING=0
+
+SNMP_DEFAULT_PORT=161
+##These following are the OIDs(Object IDentifier) used in the source code. The final dot means that the next number is an interface number
+OID_HOSTNAME="iso.3.6.1.2.1.1.5.0"
+OID_IN_OCTETS="1.3.6.1.2.1.2.2.1.10."
+OID_OUT_OCTETS="1.3.6.1.2.1.2.2.1.16."
+OID_SYSTEM_TIMEUP="1.3.6.1.2.1.1.3.0"
+OID_IFSPEED="1.3.6.1.2.1.2.2.1.5."
+OID_IF_TABLE_ENTRY="1.3.6.1.2.1.2.2.1.2."
+OID_IP_ADDRESS = "1.3.6.1.2.1.4.20.1.2"
+OID_IP_MASK = "1.3.6.1.2.1.4.20.1.3"
+OID_IF_NUMBER="1.3.6.1.2.1.2.1.0"
+
 def get_hostname_SNMP(address, community_name):
+	"""Given in input the router loopback address and the SNMP-community name, the function returns its hostname through SNMP protocol"""
 	errorIndication, errorStatus, errorIndex, varBinds = next(getCmd(SnmpEngine(),
-	CommunityData(community_name, mpModel=0),UdpTransportTarget((address, 161)),
-	ContextData(),ObjectType(ObjectIdentity("iso.3.6.1.2.1.1.5.0"))))##Host name
+	CommunityData(community_name, mpModel=0),UdpTransportTarget((address, SNMP_DEFAULT_PORT)),
+	ContextData(),ObjectType(ObjectIdentity(OID_HOSTNAME))))
 	hostname = ''
 	if errorIndication:
 		print(errorIndication)
@@ -24,14 +39,13 @@ def get_hostname_SNMP(address, community_name):
 	return hostname
 
 
-##Given the address the the interface ID, this function returns the ifInBytes and ifOutBytes from that specific interface.
-##In case of error returns -1, -1
 def get_in_out_bytes_SNMP(address, if_id, community_name):
+	"""Given the address, the interface ID and the community name, this function returns the ingoing and outgoing bytes in and from that specific interface respectively. In case of error it returns -1, -1 pair"""
 	errorIndication, errorStatus, errorIndex, varBinds = next(getCmd(SnmpEngine(),
    	CommunityData(community_name, mpModel=0),
-   	UdpTransportTarget((address, 161)),#Address and port
-   	ContextData(),ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.10."+`if_id`)),#InOctects
-	ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.16."+`if_id`))))#OutOctect
+   	UdpTransportTarget((address, SNMP_DEFAULT_PORT)),
+   	ContextData(),ObjectType(ObjectIdentity(OID_IN_OCTETS+`if_id`)),#InOctects
+	ObjectType(ObjectIdentity(OID_OUT_OCTETS+`if_id`))))#OutOctect
 	if errorIndication:
 		print(errorIndication)
 		return -1,-1
@@ -42,13 +56,12 @@ def get_in_out_bytes_SNMP(address, if_id, community_name):
 	ifOutBytes=int(varBinds[1].prettyPrint().split("= ",1)[1]);
 	return ifInBytes,ifOutBytes
 
-
-##Given the router object in input, this function gets through the SNMP protocol the Router timeUP
 def get_timeUp_SNMP(router, community_name):
+	"""Given the router object in input and the community name, this function returns, through the SNMP protocol, the router system time up"""
 	errorIndication, errorStatus, errorIndex, varBinds = next(
 		    	getCmd(SnmpEngine(),CommunityData(community_name, mpModel=0),
-			   	UdpTransportTarget((router.get_address(), 161)),#Address and port
-			   	ContextData(),ObjectType(ObjectIdentity("1.3.6.1.2.1.1.3.0"))))#SysUptime
+			   	UdpTransportTarget((router.get_address(), SNMP_DEFAULT_PORT)),
+			   	ContextData(),ObjectType(ObjectIdentity(OID_SYSTEM_TIMEUP))))#SysUptime
 
 	if errorIndication:
 		print(errorIndication)
@@ -59,19 +72,18 @@ def get_timeUp_SNMP(router, community_name):
 	timeUp=varBinds[0].prettyPrint().split("= ",1)[1];
 	return timeUp
 
-##HERE. TO MODIFY
-##Given in input the router address and the number of interfaces of router, the function returns the list of interfaces through SNMP protocol
 def get_ifs_info_SNMP(address, number_if, community_name):
+	"""Given in input the router address, router interfaces number and the community name, the function returns the interfaces list through SNMP protocol. The interface list is a list of interfaces object. For more details see the class ifs_res"""
 	if_list = {}
 	i = 1 #i is the number of interface
 	n = 1 #n is used to increment the cycle
 	while(n<=number_if):
 		errorIndication, errorStatus, errorIndex, varBinds = next(
 	    	getCmd(SnmpEngine(),CommunityData(community_name, mpModel=0),
-        		   UdpTransportTarget((address, 161)),#Address and port
+        		   UdpTransportTarget((address, SNMP_DEFAULT_PORT)),#Address and port
         		   ContextData(),
-			  		ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.5."+`i`)),#IfSpeed (The last number is the interface ID)
-			 	 	ObjectType(ObjectIdentity("1.3.6.1.2.1.2.2.1.2."+`i`))#ifTableEntry
+			  		ObjectType(ObjectIdentity(OID_IFSPEED+`i`)),#IfSpeed (The last number is the interface ID)
+			 	 	ObjectType(ObjectIdentity(OID_IF_TABLE_ENTRY+`i`))#ifTableEntry
 					))
 
 		if errorIndication:
@@ -97,13 +109,11 @@ def get_ifs_info_SNMP(address, number_if, community_name):
 				print 'No interface with ID ',i;
 		i=i+1;
 		
-	oidIPaddress = "1.3.6.1.2.1.4.20.1.2"
-	oidIPmask = "1.3.6.1.2.1.4.20.1.3"
 	#Ask for the interface id and the subnet mask, the ip address related to that interface is intergated in the response
 	errorIndication, errorStatus, errorIndex, \
 	varBindTable = cmdgen.CommandGenerator().bulkCmd(
-            cmdgen.CommunityData(community_name), cmdgen.UdpTransportTarget((address, 161)),  
-            0, 25, oidIPaddress,oidIPmask, lookupMib = False)    
+            cmdgen.CommunityData(community_name), cmdgen.UdpTransportTarget((address, SNMP_DEFAULT_PORT)),  
+            0, 25, OID_IP_ADDRESS,OID_IP_MASK, lookupMib = False)    
 	
 	i = 0
 	for varBindTableRow in varBindTable: 
@@ -124,13 +134,12 @@ def get_ifs_info_SNMP(address, number_if, community_name):
 	
 	return if_list
 
-##Given in input the router address this function returns the number of interfaces indipendendly either if they are up or down or if they are logical of physical
-
 def get_ifs_number_SNMP(address, community_name):
+	"""Given in input a router address and the community name, this function, through SNMP protocol, returns the number of interfaces indipendendly either if they are up or down or if they are logical of physical."""
 	errorIndication, errorStatus, errorIndex, varBinds = next(getCmd(SnmpEngine(),
         CommunityData(community_name, mpModel=0),
-	UdpTransportTarget((address, 161)),#Address and port
-	ContextData(),ObjectType(ObjectIdentity("1.3.6.1.2.1.2.1.0"))#Ifnumber OID
+	UdpTransportTarget((address, SNMP_DEFAULT_PORT)),#Address and port
+	ContextData(),ObjectType(ObjectIdentity(OID_IF_NUMBER))
 	))
 	if_number = 0
 	
@@ -145,8 +154,8 @@ def get_ifs_number_SNMP(address, community_name):
 		print '#interfaces: ', if_number;
 	return if_number
 
-##Given in input the routers objects list this function prints out the utilization of each interface for each router
 def get_utilization_polling(routers_list, how_much_often, community_name):
+	"""Given in input the routers objects list, the interval period and the community name, this function prints out the utilization of each interface for each router. The method used to retrive such information is through SNMP protocol"""
 	n_rel=0;
 	in_utilization=0
 	out_utilization=0
@@ -187,7 +196,7 @@ def get_utilization_polling(routers_list, how_much_often, community_name):
 					out_utilization=((delta_ifOutBytes)*8*100)/(if_speed*(float(timeUp_diff)/100));
 				
 				
-				##Some times the shown utilization is bigger than one. This it could be due to buffer o burst packets incoming. In order to avoid this kind of situation, it will be one if it is greater than one. It is correct this line of thinking ?
+				##Some times the shown utilization is bigger than one. This it could be due to buffer o burst packets incoming. In order to avoid this kind of situation, it will be one if it is greater than one. 
 				
 				#if (in_utilization>100): in_utilization=100
 				#if (out_utilization>100): out_utilization=100
@@ -195,9 +204,10 @@ def get_utilization_polling(routers_list, how_much_often, community_name):
 
 					print '(#', n_rel, ')', ' The  in utilization ', if_name,'interface (ID:', if_id,') is ', in_utilization, '% (if speed: ',if_speed,' )';
 					print '(#', n_rel, ')', ' The  out utilization ', if_name,'interface (ID:', if_id,') is ', out_utilization, '% (if speed: ',if_speed,' )\n';
+
 	
-##Given in input a router object, this function return the most recent VFile name associated to that router
 def open_last_VFile(router):
+	"""Given in input a router object, this function return the most recent VFile name corresponding to that router"""
 	hostname=router.get_hostname()
                #Only the files related to that particular roter are considered. Then is taken the most recent
 	bash_command='ls VFiles/| egrep "'+hostname+'"|tail -1'
@@ -205,37 +215,36 @@ def open_last_VFile(router):
 	name_file=name_file[:-1]#The \n character won't be considered
 	return name_file
 
-##Given the namefile, this function returns the timestamp.
-##The Vfile format is always the same according to Cisco router MIB specification
+
 def get_timeUp_from_namefile(name_file):
+	"""Given the namefile, this function returns the timestamp. The Vfile format is always the same according to Cisco router MIB specification"""
 	timeUp=name_file.split("_",1)[1]		
 	timeUp=timeUp.split("_",1)[1]
 	timeUp=timeUp.split("_",1)[1]
 	timeUp=int(timeUp)#The timeUp is encoded in the following way: HHMMSSmmm
 	return timeUp
 
-##Given the timestamp extracted from the namefile, if it is less than 100000 (i.e. it is expressed in minutes), then it is converted in seconds and returned
-##TODO Actually I suppose that is expressed always in seconds. TO FIX
+
 def convert_in_second(time_up):
+	"""Given the timestamp extracted from the namefile, if it is less than 100000 (i.e. it is expressed in minutes), then it is converted in seconds and returned. TODO Actually I suppose that is expressed always in seconds. TO FIX  """
 	time_up=time_up/100000*60
 	return time_up
 
 
-
-##given a name file, this function will delete the correspoding (V)file
 def delete_file(name_file):
+	"""##given a (V)file name, this function will delete it"""
 	bash_command='rm -f VFiles/'+name_file
 	print subprocess.check_output(bash_command, shell=True)
 
 
-##Given the object router in input, this function delete all corresponding VFiles
 def clear_VFiles(router):
+	"""Given the object router in input, this function delete all corresponding VFiles """
 	bash_command='rm -f VFiles/bulktatistics_R'+router.get_hostname()+'*'
 	print bash_command
 	print subprocess.check_output(bash_command, shell=True)
 
-#Given the name_file (which is the most recent for a specific router) and a router object, this function prints out the in and out utilization of all interfaces of a router. The router object is passed as parameter
 def update_info_router(name_file, router):
+	"""#Given the name_file (which is the most recent for a specific router) and a router object, this function prints out the in and out utilization of all interfaces of a router. The router object is passed as parameter"""
 	in_bytes=-1;
 	out_bytes=-1;
         debug=0
@@ -266,16 +275,16 @@ def update_info_router(name_file, router):
 		
         f.close()
 	delete_file(name_file) ##Since that the file is not anymore useful, has to be deleted
-	print name_file, ' deleted'
+	if(debug):
+		print name_file, ' deleted'
 	return router
 
 
 
-##Given the addresses list in input, this function returns the routers objects list.
-##In particular a router object contains: the router hostname, its time up and a list of interfaces.
-#See the router.py src code for more details.
 
 def get_routers_list(addresses_list, community_name):
+	"""Given the addresses list in input and the community name, this function returns the routers objects list.
+#See the router.py src code for more details."""
         routers_list=[]
         for address in addresses_list:
 	        ifs_number=int(get_ifs_number_SNMP(address, community_name))
@@ -284,17 +293,18 @@ def get_routers_list(addresses_list, community_name):
         return routers_list
 
 
-##Given the object router in input, this function returns two lists: the interfaces names list and the speeds interfaces list
+
 def print_ifs_info(router):
-        if_names, if_speeds=router.get_ifs_info() ##Functions asked from Gigi
+	"""Given the object router in input, this function returns two lists: the interfaces names list and the speeds interfaces list"""
+        if_names, if_speeds=router.get_ifs_info() 
         for i, interface_name in enumerate(if_names):
                 print interface_name, ',',if_speeds[i]
 	return if_names, if_speeds
 
 
 
-##Get the utilization from a single router through polling
 def get_utilization_single_router_polling(single_router, community_name):
+	"""##Giving in input the router object and the community name, this funcion returns the utilization from a single router through SNMP polling"""
 	router=single_router[0]
 	n_gets=0
 	in_utilization=0
@@ -336,33 +346,28 @@ def get_utilization_single_router_polling(single_router, community_name):
 			
 
 
-##Given in input the router object, this function returns all interfaces utilization for the router.
-##The utilization is computed from data present in the VFiles 
 def get_utilization_router_VFile(router_list):
-		router=router_list[0]##Actually the router list is composed by one element
-		counter=0
-		old_name_file=''
-		while (counter<2):##Are needed two VFile in order to compute the utilization
-			name_file=open_last_VFile(router)
-		
-			if(old_name_file!=name_file):
-				router=update_info_router(name_file, router)
-				counter=counter+1
-				old_name_file=name_file
+	"""Given in input the router object, this function returns all router interfaces utilizations. The utilization is computed from OID values placed in the VFiles """
+	router=router_list[0]##Actually the router list is composed by one element
+	counter=0
+	old_name_file=''
+	while (counter<2):##Are needed two VFile in order to compute the utilization
+		name_file=open_last_VFile(router)
+		if(old_name_file!=name_file):
+			router=update_info_router(name_file, router)
+			counter=counter+1
+			old_name_file=name_file
 			time.sleep(30)
-		return router
+	return router
 
 
-#######MAIN#############################################
-def main():
-	##In some way put the output of buildblablabla file in the addresses list. TODO
-
+def test():
+	"""main function in which some tests can be performed""" 
 
 	##Addresses list in hard coded way
 	community_name='public'
 	addresses_list=['192.168.3.1','10.1.1.2']
 	address=['192.168.3.1']
-
 
 	routers_list=get_routers_list(address, community_name)
 	routers_list[0].display_info()
@@ -396,10 +401,9 @@ def main():
 	##The utilizations are obtained polling periodically all the information from all routers in the routers list.
 	##These parameters are needed: the routers_list, polling_interval and commnunity name.
 	##The routers_list can be obtained using the get_routers_list function.
-	polling_periodic=1
+	polling_periodic=0
 	if(polling_periodic):
 		polling_interval=1##SECONDS
 		get_utilization_polling(routers_list, polling_interval, community_name)
-	
-	##print_ifs_info(routers_list[0]) //Function asked for Luigi
-#main()
+
+#test()
