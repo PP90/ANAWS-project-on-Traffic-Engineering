@@ -85,15 +85,18 @@ def show_graph(G, graph, interfaces_names, color_vector, labels=None, graph_layo
 def get_graph_and_arches(matrix_topology, matrix_interfaces = None):
 	"""This function returns the graph as a list of connections among the network nodes and the interface list" giving in input the matrix topology and optionally the matrix interface"""
 	graph=[]
-	interfaces_list=[]
+	interfaces_list=[]	
 	for i,element in enumerate(matrix_topology):
 		for j,el in enumerate(element):
 			if(el!=0):
 				#print i,' ',j,' ', el						
 				graph.append((j,i))
 				if matrix_interfaces != None:
-					interfaces_list.append(matrix_interfaces[i][j])
-	#print graph, 
+					try:
+						interfaces_list.append(matrix_interfaces[i][j])
+					except:
+						interfaces_list.append('0')
+	#print graph, 	
 	#print interfaces_list
 	return graph, interfaces_list
 
