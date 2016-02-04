@@ -84,16 +84,14 @@ def buildTopologyMatrix(interfaces, ip, mode):
     for i in interfaces:
         listInfo.append({})
         listInfo[len(listInfo) - 1]['routerId'] = i
-        #cmd = 'vtysh -c "show ip ospf database router ' + i + '"'
-        #output = subprocess.check_output(cmd, shell=True)
-        cmd = 'show ip ospf database router ' + i + '\n'
+
         output = ''
         if mode == 'T':
-        	cmd = 'show ip ospf database router ' + i + '\n'
-        	output = telnetRouter(ip, cmd)
+            cmd = 'show ip ospf database router ' + i + '\n'
+            output = telnetRouter(ip, cmd)
         else:
-        	cmd = 'vtysh -c "show ip ospf database router ' + i + '"\n'
-        	output = requestToQuagga(cmd)
+            cmd = 'vtysh -c "show ip ospf database router ' + i + '"\n'
+            output = requestToQuagga(cmd)
         rows = output.split('\n')
         #pprint.pprint(rows)
 
@@ -126,14 +124,14 @@ def buildTopologyMatrix(interfaces, ip, mode):
                 draddress = listInfo[i][str(j) + '_draddress']
                 k = findDr(draddress, listInfo, i)
                 if(k < 0):
-                    print("ERROR:", draddress, i)
+                    print(("ERROR:", draddress, i))
                 else:
                     topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
             else:
                 nexthopaddr = listInfo[i][str(j) + '_nexthopaddr']
                 k = findNextHop(nexthopaddr, listInfo)
                 if(k < 0):
-                    print("ERROR:", draddress, i)
+                    print(("ERROR:", draddress, i))
                 else:
                     topologyMatrix[i][k] = listInfo[i][str(j) + '_ip']
 
@@ -146,16 +144,16 @@ def telnetRouter(ipaddr, cmd):
     output = tn.read_until('>')
     tn.close
     return output
-    
+
 def requestToQuagga(cmd):
-	output = subprocess.check_output(cmd, shell=True)
-	return output
+    output = subprocess.check_output(cmd, shell=True)
+    return output
 
 def getTopology(ip, mode):
     output = None
     if mode == 'Q':
         #output of the command
-        output = subprocess.check_output('vtysh -c "show ip ospf database"', shell=True)
+        output = requestToQuagga('vtysh -c "show ip ospf database"')
     else:
         output = telnetRouter(ip, 'show ip ospf database\n')
     if output == None:
