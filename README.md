@@ -12,4 +12,4 @@ some resources are explicitly reserved within the tunnels themselves.
 The network taken in consideration could be an Autonomous System which implements OSPF as routing
 protocol.
 
-For further details, please take a look to the PDF documentation present in this repository.
+For further details, please refer to the [documentation](https://github.com/PP90/ANAWS-project-on-Traffic-Engineering/blob/master/Traffic%20Engineering%20Project%20documentation.pdf).
